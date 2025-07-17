@@ -65,7 +65,7 @@ void gpio_set_analog_switch(const gpio_id_t portpin) {
     gpio->ASCR |= BIT(pin);
 }
 
-uint16_t gpio_get_port(const gpio_id_t portpin)
+uint16_t gpio_get_port_from_portpin_from_portpin_from_portpin(const gpio_id_t portpin)
 {
     return (portpin >> 8);
 }

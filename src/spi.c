@@ -13,10 +13,10 @@ void spi_init(const peripheral_id_spi_t spi_id, gpio_id_t cs_pin, gpio_id_t sck_
     assert(spi_id >= 0);
     peripheral_spi_enable(spi_id);
 
-    peripheral_gpio_enable(gpio_get_port(cs_pin));
-    peripheral_gpio_enable(gpio_get_port(sck_pin));
-    peripheral_gpio_enable(gpio_get_port(miso_pin));
-    peripheral_gpio_enable(gpio_get_port(mosi_pin));
+    peripheral_gpio_enable(gpio_get_port_from_portpin(cs_pin));
+    peripheral_gpio_enable(gpio_get_port_from_portpin(sck_pin));
+    peripheral_gpio_enable(gpio_get_port_from_portpin(miso_pin));
+    peripheral_gpio_enable(gpio_get_port_from_portpin(mosi_pin));
 
     gpio_set_alternate_function(cs_pin, AF5);//all spi on AF4
     gpio_set_alternate_function(sck_pin, AF5);

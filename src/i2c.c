@@ -14,8 +14,8 @@ static inline I2C_typeDef * i2c_get_base_address(const uint16_t id)
 void i2c_init(const uint16_t id, gpio_id_t scl_pin, gpio_id_t sda_pin) {
     peripheral_i2c_enable(id);
 
-    peripheral_gpio_enable(gpio_get_port(scl_pin));
-    peripheral_gpio_enable(gpio_get_port(sda_pin));
+    peripheral_gpio_enable(gpio_get_port_from_portpin(scl_pin));
+    peripheral_gpio_enable(gpio_get_port_from_portpin(sda_pin));
 
     gpio_set_alternate_function(scl_pin, AF4);//all i2c on AF4
     gpio_set_alternate_function(sda_pin, AF4);

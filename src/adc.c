@@ -40,7 +40,7 @@ void adc_init(const peripheral_id_adc_t adc_id) {
 
 void adc_gpio_init(gpio_id_t adc_pin) {
     //enable clock
-    peripheral_gpio_enable(gpio_get_port(adc_pin));
+    peripheral_gpio_enable(gpio_get_port_from_portpin(adc_pin));
     gpio_set_mode(adc_pin, MODER_ANALOG);
     gpio_set_analog_switch(adc_pin);
 }

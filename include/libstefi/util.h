@@ -13,6 +13,8 @@ void soft_delay_us(uint32_t time_in_us);
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1: __FILE__ )
 #define TEXTIFY(x) #x
+
+#ifndef assert
 #define assert(expr) \
     do { \
         if(!(expr)) { \
@@ -21,3 +23,4 @@ void soft_delay_us(uint32_t time_in_us);
         } \
        } \
     while(0);
+#endif
