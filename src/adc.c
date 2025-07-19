@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <libstefi/peripheral.h>
 #include <libstefi/util.h>
+#include <libstefi/gpio.h>
 
 #include "internal/adc_internal.h"
 
