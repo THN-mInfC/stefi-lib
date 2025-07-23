@@ -5,7 +5,7 @@
 #include "libstefi/peripheral.h"
 #include <libstefi/adc.h>
 
-/* Sensor: Sound Sensor, reuse Linear magnetic hall sensor  */
+/* Sensor: Sound Sensor, reuse Linear magnetic hall sensor, Analog Temp Sensor, Photoreistor  */
 /* Demo: Connect VCC-3.3 V, GND, and Analog -> Pin A0, Digital to Pin A1 on CN7 */
 /* Function: User led lights up on large sound, pot. to change sensetivity */
 

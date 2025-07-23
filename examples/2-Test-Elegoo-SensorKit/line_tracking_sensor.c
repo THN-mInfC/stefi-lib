@@ -1,7 +1,7 @@
 #include "libstefi/gpio.h"
 #include "libstefi/peripheral.h"
 
-/* Sensor: Line Tracking Module */
+/* Sensor: Line Tracking Module, PIR Motion Sensor, Magnetic Spring, Flame Sensor */
 /* Demo: Connect VCC-3.3 V, GND, and S -> Pin A0 on CN7 */
 /* Function: USER LED (A5) lights up on white surface, and off on black area*/
 
