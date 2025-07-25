@@ -46,6 +46,7 @@ void timer_start(const tim_id_t timer_id)
     assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
 
+    tim->SR = 0;
     tim->CR1 |= BIT(0);
 }
 
@@ -73,7 +74,7 @@ uint32_t timer_get_arr(const tim_id_t timer_id) {
     return tim->ARR;
 }
 
-uint32_t timer_get_compare(const tim_id_t timer_id, uint8_t channel)
+uint32_t timer_get_compare(const tim_id_t timer_id, timer_channel_t channel)
 {
     assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
@@ -99,16 +100,31 @@ void timer_setcount(const tim_id_t timer_id, uint32_t cnt)
 
 void timer_set_period(const tim_id_t timer_id, uint16_t prescaler, uint32_t period)
 {
-    assert(timer_id > 0);
+    //assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
 
     tim->PSC = prescaler - 1; //Set prescaler
-    tim->ARR = period; //Set period
+    tim->ARR = period - 1; //Set period
     tim->CNT = 0;
     tim->EGR |= BIT(0);  // Load new ARR immediately
 }
 
-void timer_set_mode_pwm(const tim_id_t timer_id, uint32_t channel)
+void timer_set_mode_opm(const tim_id_t timer_id) {
+    assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+
+    tim->CR1 |= BIT(3);
+}
+
+void timer_wait_for_update_flag(const tim_id_t timer_id) {
+    //assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+
+    while (!(tim->SR & BIT(0)));
+    tim->SR = 0; // Clear flag
+}
+
+void timer_set_mode_pwm(const tim_id_t timer_id, timer_channel_t channel)
 {
     assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
@@ -125,7 +141,7 @@ void timer_set_mode_pwm(const tim_id_t timer_id, uint32_t channel)
     }
 }
 
-void timer_set_mode_ic(const tim_id_t timer_id, uint32_t channel)
+void timer_set_mode_ic(const tim_id_t timer_id, timer_channel_t channel)
 {
     assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
@@ -149,7 +165,7 @@ void timer_set_mode_ic(const tim_id_t timer_id, uint32_t channel)
 
 }
 
-void timer_set_compare(const tim_id_t timer_id, uint32_t channel, uint32_t duty)
+void timer_set_compare(const tim_id_t timer_id, timer_channel_t channel, uint32_t duty)
 {
     assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
@@ -189,6 +205,18 @@ static void timer_set_cc_io(const tim_id_t timer_id, uint32_t channel, bool is_i
         if(timer_id == 1 || timer_id == 8) {
             tim->BDTR |= BIT(15); //Master Output Enable
         }
+    }
+}
+
+void timer_set_ic_edge(const tim_id_t timer_id, timer_channel_t channel, timer_edge_t edge) {
+    assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+    uint8_t shift = (channel -1) * 4;
+        // CC1NP=0, CC1P=0: sensitive to rising edge
+    if(edge == TIMER_EDGE_RISING) {
+        tim->CCER &= ~(0x1 << (shift + 1)| 0x1  << (shift+3));
+    } else if(edge == TIMER_EDGE_FALLING) {
+        tim->CCER |= 0x1 << (shift + 1);
     }
 }
 
@@ -265,7 +293,7 @@ void timer_enable_interrupt(const tim_id_t timer_id)
     interrupts_enable_source(timerid_to_irq[timer_id]);
 }
 
-void timer_cc_enable(const tim_id_t timer_id, uint32_t channel, bool is_input)
+void timer_cc_enable(const tim_id_t timer_id, timer_channel_t channel, bool is_input)
 {
     assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
@@ -297,7 +325,6 @@ void timer_cc_enable(const tim_id_t timer_id, uint32_t channel, bool is_input)
     timer_clear_interruptflag(timer_id);
     interrupts_enable_source(timerid_to_irq[timer_id]);
 }
-
 void TIM2_IRQHandler(void) {handle_timer_irq(TIMER2);}
 void TIM3_IRQHandler(void) {handle_timer_irq(TIMER3);}
 void TIM4_IRQHandler(void) {handle_timer_irq(TIMER4);}

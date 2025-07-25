@@ -11,9 +11,17 @@ static inline I2C_typeDef * i2c_get_base_address(const uint16_t id)
     return (I2C_typeDef *) (I2C_BASE +  baseoffset);
 }
 
-void i2c_init(const uint16_t id, gpio_id_t scl_pin, gpio_id_t sda_pin) {
+void i2c_init(const uint16_t id) {
     peripheral_i2c_enable(id);
 
+    I2C_typeDef *i2c = i2c_get_base_address(id);
+
+    //formula later
+    i2c->TIMINGR = (uint32_t) 0x00100D14;   // set I2C timing (100kHz with default clock)
+    i2c->CR1 |= BIT(0);                 // Enable I2C
+}
+
+void i2c_gpio_init(gpio_id_t scl_pin, gpio_id_t sda_pin) {
     peripheral_gpio_enable(gpio_get_port_from_portpin(scl_pin));
     peripheral_gpio_enable(gpio_get_port_from_portpin(sda_pin));
 
@@ -22,18 +30,11 @@ void i2c_init(const uint16_t id, gpio_id_t scl_pin, gpio_id_t sda_pin) {
     gpio_set_mode(scl_pin, MODER_AF);
     gpio_set_mode(sda_pin, MODER_AF);
 
-    //gpio_set_pupd(scl_pin, PULL_UP);
-    //gpio_set_pupd(sda_pin, PULL_UP);
-
     gpio_set_output_type(scl_pin, OPEN_DRAIN);
     gpio_set_output_type(sda_pin, OPEN_DRAIN);
-
-    I2C_typeDef *i2c = i2c_get_base_address(id);
-
-    //formula later
-    i2c->TIMINGR = (uint32_t) 0x00100D14;   // set I2C timing (100kHz with default clock)
-    i2c->CR1 |= BIT(0);                 // Enable I2C
 }
+
+
 
 void i2c_readfrom(const uint16_t id, uint8_t address7b, uint8_t *buf, uint32_t len) {
     I2C_typeDef *i2c = i2c_get_base_address(id);
