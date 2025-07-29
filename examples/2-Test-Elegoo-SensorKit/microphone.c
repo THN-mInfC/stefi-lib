@@ -15,15 +15,15 @@
 
 void main(){
     uart_configure();
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOA);
+    peripheral_gpio_enable(PERIPHERAL_GPIOA);
     gpio_set_mode(USER_LED, MODER_OUTPUT);
     gpio_set_mode(SOUND_SENSOR_DIGITAL_PIN, MODER_INPUT);
 
     adc_gpio_init(SOUND_SENSOR_ANALOG_PIN);
-    adc_init(PERIPHERAL_ID_ADC1);
+    adc_init(PERIPHERAL_ADC1);
 
     while(1) {
-        uint16_t x = adc_read(PERIPHERAL_ID_ADC1,5);
+        uint16_t x = adc_read(PERIPHERAL_ADC1,5);
         uint16_t detect = gpio_read(SOUND_SENSOR_DIGITAL_PIN);
         printf("x:%d detect: %d \r\n", x, detect);
         if(detect) {

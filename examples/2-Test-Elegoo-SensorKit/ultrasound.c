@@ -46,8 +46,8 @@ void capture_callback()
 void main(){
     uart_configure();
 
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOA);
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOC);
+    peripheral_gpio_enable(PERIPHERAL_GPIOA);
+    peripheral_gpio_enable(PERIPHERAL_GPIOC);
 
     //Trigger (10us) on out ping
     gpio_set_mode(US_OUT_PIN, MODER_OUTPUT);

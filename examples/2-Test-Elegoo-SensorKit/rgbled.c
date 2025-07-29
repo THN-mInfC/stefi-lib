@@ -14,8 +14,8 @@
 #define BLUE_RGBLED_PIN B3 // D3 {B3, TIM2, 2, AF1}, D9 {C7, TIM3, 2, AF2},
 
 void main(){
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOA);
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOB);
+    peripheral_gpio_enable(PERIPHERAL_GPIOA);
+    peripheral_gpio_enable(PERIPHERAL_GPIOB);
     gpio_set_mode(USER_LED, MODER_OUTPUT);
 
     gpio_set_mode(RED_RGBLED_PIN, MODER_AF);

@@ -13,7 +13,7 @@
 
 void main(){
     uart_configure();
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOA);
+    peripheral_gpio_enable(PERIPHERAL_GPIOA);
     gpio_set_mode(USER_LED, MODER_OUTPUT);
     gpio_set_mode(TOUCH_SENSOR_PIN, MODER_INPUT);
 

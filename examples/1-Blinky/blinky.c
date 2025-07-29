@@ -7,7 +7,7 @@
 
 #define LED A5
 void main(){
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOA);
+    peripheral_gpio_enable(PERIPHERAL_GPIOA);
     gpio_set_mode(LED, MODER_OUTPUT); // LED1 on Port C pin 5 on STefi
 
     while(1) {

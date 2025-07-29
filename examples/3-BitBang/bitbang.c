@@ -107,7 +107,7 @@ void main(){
     system_init();
 
     //DHT11 Init
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOA);
+    peripheral_gpio_enable(PERIPHERAL_GPIOA);
     gpio_set_mode(LED, MODER_OUTPUT);
 
     gpio_set_mode(DHT11_PIN, MODER_OUTPUT);
