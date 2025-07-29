@@ -14,8 +14,8 @@ UART_typeDef *uart = USART2;
 
 void uart_configure(){
     //UM2397: USART2 (PA2/PA3) connected to STLINK-V3E Virtual COM port.
-    peripheral_uart_enable(PERIPHERAL_ID_UART2);
-    peripheral_gpio_enable(PERIPHERAL_ID_GPIOA);
+    peripheral_uart_enable(PERIPHERAL_UART2);
+    peripheral_gpio_enable(PERIPHERAL_GPIOA);
     gpio_set_alternate_function(port_uart_tx, AF7);
     gpio_set_alternate_function(port_uart_rx, AF7);
     gpio_set_mode(port_uart_tx, MODER_AF);

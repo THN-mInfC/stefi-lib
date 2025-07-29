@@ -24,7 +24,7 @@ static const enum _nvic_interrupt_sources extipin_to_irq[16] = {
 };
 
 static struct {
-    callbackfn_typeDef callback;
+    callbackfn_t callback;
 } exti_handlers[NUM_EXTIINTERRUPTS];
 
 
@@ -121,7 +121,7 @@ void gpio_clear_interruptflag(uint8_t pin) {
     EXTI->PR1 |= BIT(pin);  // Clear pending bit
 }
 
-void gpio_interrupt_register_handler(const gpio_id_t portpin, callbackfn_typeDef fn) {
+void gpio_interrupt_register_handler(const gpio_id_t portpin, callbackfn_t fn) {
     uint16_t pin = portpin & 0xFF;
     exti_handlers[pin].callback =fn;
 }

@@ -11,9 +11,8 @@ static inline I2C_typeDef * i2c_get_base_address(const uint16_t id)
     return (I2C_typeDef *) (I2C_BASE +  baseoffset);
 }
 
-void i2c_init(const uint16_t id) {
+void i2c_init(peripheral_i2c_t id) {
     peripheral_i2c_enable(id);
-
     I2C_typeDef *i2c = i2c_get_base_address(id);
 
     //formula later
@@ -36,7 +35,7 @@ void i2c_gpio_init(gpio_id_t scl_pin, gpio_id_t sda_pin) {
 
 
 
-void i2c_readfrom(const uint16_t id, uint8_t address7b, uint8_t *buf, uint32_t len) {
+void i2c_readfrom(peripheral_i2c_t id, uint8_t address7b, uint8_t *buf, uint32_t len) {
     I2C_typeDef *i2c = i2c_get_base_address(id);
 
     i2c->CR2 = ((address7b << 1) & 0x3FF); //Slave address
@@ -52,7 +51,7 @@ void i2c_readfrom(const uint16_t id, uint8_t address7b, uint8_t *buf, uint32_t l
     }
 }
 
-void i2c_writeto(const uint16_t id, uint8_t address7b, uint8_t *buf, uint32_t len, bool repeat) {
+void i2c_writeto(peripheral_i2c_t id, uint8_t address7b, uint8_t *buf, uint32_t len, bool repeat) {
     I2C_typeDef *i2c = i2c_get_base_address(id);
     uint32_t cr2 = 0;
 
@@ -78,7 +77,7 @@ void i2c_writeto(const uint16_t id, uint8_t address7b, uint8_t *buf, uint32_t le
     }
 }
 
-void i2c_writeto_reg(const uint16_t id, uint8_t address7b, uint8_t reg, uint8_t *buf, uint32_t len) {
+void i2c_writeto_reg(peripheral_i2c_t id, uint8_t address7b, uint8_t reg, uint8_t *buf, uint32_t len) {
 
     I2C_typeDef *i2c = i2c_get_base_address(id);
     uint32_t cr2 = 0;

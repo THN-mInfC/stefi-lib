@@ -8,7 +8,7 @@
 
 static struct {
     struct {
-        callbackfn_typeDef callback;
+        callbackfn_t callback;
         void *aux_data; //use in case of gpio, timer modes like interrupt in advanced modes later
     } handlers[NUM_INTERRUPTS];
     bool initialized;
@@ -28,7 +28,7 @@ void generic_dispatch()
 }
 
 //Usage: interrupts_register_handler(TIMx_IRQn, tim_irq_handler);
-void interrupts_register_handler(nvic_source_t source, callbackfn_typeDef fn)
+void interrupts_register_handler(nvic_source_t source, callbackfn_t fn)
 {
     module.handlers[source].callback = fn;
 }

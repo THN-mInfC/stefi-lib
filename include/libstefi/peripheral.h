@@ -3,67 +3,78 @@
 /**********************************************************************/
 /* RCC (Reset Clock Control) Hardware Abstraction layer               */
 /**********************************************************************/
-typedef enum peripheral_id_gpio peripheral_id_gpio_t;
-typedef enum peripheral_id_tim peripheral_id_tim_t;
-typedef enum peripheral_id_uart peripheral_id_uart_t;
-typedef enum peripheral_id_i2c peripheral_id_i2c_t;
-typedef enum peripheral_id_spi peripheral_id_spi_t;
-typedef enum peripheral_id_adc peripheral_id_adc_t;
-
-void peripheral_gpio_enable(peripheral_id_gpio_t);
-void peripheral_tim_enable(peripheral_id_tim_t);
-void peripheral_uart_enable(peripheral_id_uart_t);
-void peripheral_i2c_enable(peripheral_id_i2c_t id);
-void peripheral_spi_enable(peripheral_id_spi_t id);
-void peripheral_adc_enable(peripheral_id_adc_t id);
-void peripheral_exti_enable();
-void peripheral_rng_enable();
-
-enum peripheral_id_gpio {
-    PERIPHERAL_ID_GPIOA,
-    PERIPHERAL_ID_GPIOB,
-    PERIPHERAL_ID_GPIOC,
+enum peripheral_gpio {
+    PERIPHERAL_GPIOA,
+    PERIPHERAL_GPIOB,
+    PERIPHERAL_GPIOC,
     PERIPHERAL_GPIO_COUNT
 };
 
-enum peripheral_id_tim {
-    PERIPHERAL_ID_TIM1,
-    PERIPHERAL_ID_TIM2,
-    PERIPHERAL_ID_TIM3,
-    PERIPHERAL_ID_TIM4,
-    PERIPHERAL_ID_TIM5,
-    PERIPHERAL_ID_TIM6,
-    PERIPHERAL_ID_TIM7,
-    PERIPHERAL_ID_TIM8,
-    PERIPHERAL_ID_TIM15 = 14,
-    PERIPHERAL_ID_TIM16,
-    PERIPHERAL_ID_TIM17,
+enum peripheral_tim {
+    PERIPHERAL_TIM1,
+    PERIPHERAL_TIM2,
+    PERIPHERAL_TIM3,
+    PERIPHERAL_TIM4,
+    PERIPHERAL_TIM5,
+    PERIPHERAL_TIM6,
+    PERIPHERAL_TIM7,
+    PERIPHERAL_TIM8,
+    PERIPHERAL_TIM15 = 14,
+    PERIPHERAL_TIM16,
+    PERIPHERAL_TIM17,
     PERIPHERAL_TIM_COUNT
 };
 
-enum peripheral_id_uart {
-    PERIPHERAL_ID_UART1,
-    PERIPHERAL_ID_UART2,
+enum peripheral_uart {
+    PERIPHERAL_UART1,
+    PERIPHERAL_UART2,
     PERIPHERAL_UART_COUNT
 };
 
-enum peripheral_id_i2c {
-    PERIPHERAL_ID_I2C1,
-    PERIPHERAL_ID_I2C2,
-    PERIPHERAL_ID_I2C3,
+enum peripheral_i2c {
+    PERIPHERAL_I2C1,
+    PERIPHERAL_I2C2,
+    PERIPHERAL_I2C3,
     PERIPHERAL_I2C_COUNT
 };
 
-enum peripheral_id_spi {
-    PERIPHERAL_ID_SPI1,
-    PERIPHERAL_ID_SPI2,
-    PERIPHERAL_ID_SPI3,
+enum peripheral_spi {
+    PERIPHERAL_SPI1,
+    PERIPHERAL_SPI2,
+    PERIPHERAL_SPI3,
     PERIPHERAL_SPI_COUNT
 };
 
-enum peripheral_id_adc {
-    PERIPHERAL_ID_ADC1,
-    PERIPHERAL_ID_ADC2,
-    PERIPHERAL_ID_ADC3,
+enum peripheral_adc {
+    PERIPHERAL_ADC1,
+    PERIPHERAL_ADC2,
+    PERIPHERAL_ADC3,
     PERIPHERAL_ADC_COUNT
 };
+
+typedef enum peripheral_gpio peripheral_gpio_t;
+typedef enum peripheral_tim peripheral_tim_t;
+typedef enum peripheral_uart peripheral_uart_t;
+typedef enum peripheral_i2c peripheral_i2c_t;
+typedef enum peripheral_spi peripheral_spi_t;
+typedef enum peripheral_adc peripheral_adc_t;
+
+/**
+ * @brief Enable clock for specified GPIO peripheral
+ */
+void peripheral_gpio_enable(peripheral_gpio_t);
+
+/**
+ * @brief Enable clock for specified Timer peripheral
+ */
+void peripheral_tim_enable(peripheral_tim_t);
+
+/**
+ * @brief Enable clock for specified UART peripheral
+ */
+void peripheral_uart_enable(peripheral_uart_t);
+void peripheral_i2c_enable(peripheral_i2c_t id);
+void peripheral_spi_enable(peripheral_spi_t id);
+void peripheral_adc_enable(peripheral_adc_t id);
+void peripheral_exti_enable();
+void peripheral_rng_enable();

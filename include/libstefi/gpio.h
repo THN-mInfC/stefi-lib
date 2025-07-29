@@ -4,6 +4,7 @@
 
 #include "interrupts.h"
 #include "stdint.h"
+
 /**********************************************************************/
 /* GPIO (General Purpose Input and Output) Hardware Abstraction layer */
 /**********************************************************************/
@@ -30,7 +31,7 @@ void gpio_set_pupd(gpio_id_t portpin, pupdr_t pupd);
 void gpio_set_alternate_function(gpio_id_t portpin, afr_t af);
 void gpio_set_analog_switch(gpio_id_t portpin);
 
-/* GPIO read, write, functions */
+/* GPIO processing functions: read, write, toggle  */
 static inline GPIO_typeDef * gpio_get_base_address(gpio_id_t portpin)
 {
     uint16_t port = (portpin >> 8);
@@ -60,10 +61,10 @@ static inline void gpio_toggle(gpio_id_t portpin)
     gpio->ODR ^= (1 << pin);
 }
 
-/* EXTI Functions(extended interrupts mapped to GPIO Pins)*/
+/* GPIO Interrupt functions (extended interrupts mapped to GPIO Pins)*/
 void gpio_enable_interrupt(gpio_id_t portpin,  edge_t edge);
 void gpio_disable_interrupt(gpio_id_t portpin,  edge_t edge);
-void gpio_interrupt_register_handler(gpio_id_t portpin, callbackfn_typeDef);
+void gpio_interrupt_register_handler(gpio_id_t portpin, callbackfn_t);
 
 /* For testing*/
 moder_t gpio_get_mode(gpio_id_t portpin);

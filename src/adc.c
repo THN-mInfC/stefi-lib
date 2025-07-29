@@ -10,7 +10,7 @@
 
 ADC_t *adc_peripherals[] = {(ADC_t *) ADC1_BASE, NULL, NULL};
 
-void adc_init(const peripheral_id_adc_t adc_id) {
+void adc_init(const peripheral_adc_t adc_id) {
     assert(adc_id >= 0);
     peripheral_adc_enable(adc_id);
 
@@ -46,7 +46,7 @@ void adc_gpio_init(gpio_id_t adc_pin) {
     gpio_set_analog_switch(adc_pin);
 }
 
-uint16_t adc_read(const peripheral_id_adc_t adc_id, uint8_t channel) {
+uint16_t adc_read(const peripheral_adc_t adc_id, uint8_t channel) {
     assert(adc_id >= 0);
     ADC_t *adc = adc_peripherals[adc_id];
     //- Set number of conversions to 1

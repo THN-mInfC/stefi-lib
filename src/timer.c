@@ -31,7 +31,7 @@ static const enum _nvic_interrupt_sources timerid_to_irq[19] = {
 };
 
 static struct {
-    callbackfn_typeDef callback[TIMER_IRQ_MAX];
+    callbackfn_t callback[TIMER_IRQ_MAX];
     void *aux_data;
 } timer_handlers[NUM_TIMERINTERRUPTS] = {0};
 
@@ -221,11 +221,11 @@ void timer_set_ic_edge(const tim_id_t timer_id, timer_channel_t channel, timer_e
 }
 
 /*******Interrupts*****************/
-void timer_interrupt_register_handler(const tim_id_t timer_id, callbackfn_typeDef fn) {
+void timer_interrupt_register_handler(const tim_id_t timer_id, callbackfn_t fn) {
     timer_handlers[timer_id].callback[TIMER_UPDATE_IRQ] = fn;
 }
 
-void timer_cc_interrupt_register_handler(const tim_id_t timer_id, timer_interrupt_t channel, callbackfn_typeDef fn) {
+void timer_cc_interrupt_register_handler(const tim_id_t timer_id, timer_interrupt_t channel, callbackfn_t fn) {
     timer_handlers[timer_id].callback[channel] = fn;
 }
 

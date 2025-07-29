@@ -9,7 +9,7 @@
 
 SPI_t *spi_peripherals[] = {(SPI_t*) SPI1_BASE, NULL, NULL};
 
-void spi_init(const peripheral_id_spi_t spi_id) {
+void spi_init(const peripheral_spi_t spi_id) {
     assert(spi_id >= 0);
     peripheral_spi_enable(spi_id);
 
@@ -45,7 +45,7 @@ void spi_gpio_init(gpio_id_t cs_pin, gpio_id_t sck_pin, gpio_id_t miso_pin, gpio
     gpio_set_mode(A4, MODER_OUTPUT);
 }
 
-uint8_t spi_transfer(const peripheral_id_spi_t spi_id, uint8_t data) {
+uint8_t spi_transfer(const peripheral_spi_t spi_id, uint8_t data) {
     assert(spi_id >= 0);
     SPI_t *spi = spi_peripherals[spi_id];
 

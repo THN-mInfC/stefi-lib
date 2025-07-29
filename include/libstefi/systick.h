@@ -5,17 +5,47 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-//Systick generates Interrupt every 1 ms
-void systick_init();
-void systick_start();
-void systick_stop();
-//reset the timer
-void systick_restart();
+/**
+ * @brief Initialize SysTick to trigger interrupt every 1 ms
+ */
+void systick_init(void);
 
-uint32_t systick_get_ms();
-uint32_t systick_get_us();
+/**
+ * @brief Start the SysTick timer
+ */
+void systick_start(void);
 
-//Non-blocking delay
+/**
+ * @brief Stop the SysTick timer
+ */
+void systick_stop(void);
+
+/**
+ * @brief Restart SysTick timer (reset to 0 and start)
+ */
+void systick_restart(void);
+
+/**
+ * @brief Get milliseconds since system start
+ * @return Elapsed time in milliseconds
+ */
+uint32_t systick_get_ms(void);
+
+/**
+ * @brief Get microseconds precision to millis counter
+ */
+uint32_t systick_get_us(void);
+
+/**
+ * @brief For non-blocking delay, Check if the given period has elapsed since last call
+ *
+ * @param last_timestamp Pointer to store and compare previous tick
+ * @param period_ms Period duration in milliseconds
+ * @return true if period has elapsed
+ */
 bool systick_expired(uint32_t *current, uint32_t period);
-//Blocking delay
+
+/**
+ * @brief Blocking delay
+ */
 void systick_delay_ms(uint32_t time_in_ms);

@@ -1,6 +1,12 @@
 #pragma once
+
+/**********************************************************************/
+/* Interrupts Hardware Abstraction layer */
+/**********************************************************************/
+
 //Datatypes
-typedef void (*callbackfn_typeDef)();
+typedef void (*callbackfn_t)();
+
 enum _nvic_interrupt_sources {
     INTERRUPT_SOURCE_NONE = -1,
     INTERRUPT_SOURCE_EXTI0 = 6,
@@ -23,12 +29,40 @@ enum _nvic_interrupt_sources {
 
 typedef enum _nvic_interrupt_sources nvic_source_t;
 
-//Functions
+/* Interrupt initialization functions*/
+
+/**
+ * @brief Enable interrupt module
+ *
+ */
 void interrupts_init(void);
+
+/**
+ * @brief Enable interrupt handlers
+ *
+ */
 void interrupts_global_enable(void);
+
+/**
+ * @brief Disable interrupt handlers
+ *
+ */
 void interrupts_global_disable(void);
 
+/**
+ * @brief Enable interrupt #source
+ *
+ */
 void interrupts_enable_source(nvic_source_t source);
+
+/**
+ * @brief Disable interrupt #source
+ *
+ */
 void interrupts_disable_source(nvic_source_t source);
-void interrupts_register_handler(nvic_source_t source, callbackfn_typeDef fn);
-void generic_dispatch();
+
+/**
+ * @brief Register a callback for the given interrupt source
+ *
+ */
+void interrupts_register_handler(nvic_source_t source, callbackfn_t fn);
