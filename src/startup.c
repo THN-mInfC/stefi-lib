@@ -13,6 +13,7 @@ extern void EXTI2_IRQHandler(void);
 extern void EXTI3_IRQHandler(void);
 extern void EXTI4_IRQHandler(void);
 extern void EXTI5_9_IRQHandler(void);
+extern void EXTI10_15_IRQHandler(void);
 
 extern void TIM2_IRQHandler(void);
 extern void TIM3_IRQHandler(void);
@@ -96,7 +97,9 @@ void (* const paIsrFunc[16+102])(void) =
 	TIM2_IRQHandler,            /*  28 (0x000000B0)  TIM2 global interrupt */
 	TIM3_IRQHandler,            /*  29 (0x000000B0)  TIM3 global interrupt */
 	TIM4_IRQHandler,            /*  30 (0x000000B0)  TIM4 global interrupt */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0,
+	EXTI10_15_IRQHandler,
+	0, 0, 0,
 	TIM8_IRQHandler,
 	0, 0, 0, 0, 0, 0, 0, 0, 0,
 	TIM6_IRQHandler,            /*  54 (0x00000118)  TIM6 + DAC1/3 underrun global interrupts */
