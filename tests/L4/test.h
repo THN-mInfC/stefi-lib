@@ -10,3 +10,16 @@ typedef struct {
 } tests_t;
 
 void run_all_tests(const tests_t *tests, int count);
+
+extern int test_passed;
+extern int test_failed;
+
+static int test_pass(char *msg) {
+    printf("[PASS] %s \r\n", msg);
+    test_passed++;
+}
+
+static int test_fail(char *msg) {
+    printf("[FAIL] %s \r\n", msg);
+    test_failed++;
+}

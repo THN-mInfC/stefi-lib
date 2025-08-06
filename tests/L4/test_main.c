@@ -4,10 +4,14 @@
 
 #include "test.h"
 
+/* Note: plug in the appropriate jumpers*/
+
 extern void gpio_toggle_test(void);
+extern void gpio_readwrite_test(void);
 
 const tests_t tests[] = {
-    {"gpio_readwrite", gpio_toggle_test},
+    {"gpio_readwrite", gpio_readwrite_test},
+    {"gpio_toggle", gpio_toggle_test},
 };
 
 void main() {
