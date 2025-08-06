@@ -45,6 +45,7 @@ endfunction()
 # Automatically add all example and test projects
 add_subdirectories(${CMAKE_SOURCE_DIR}/examples)
 add_subdirectories(${CMAKE_SOURCE_DIR}/tests)
+
 # Add subdirectory for the lib
 #add_subdirectory(libs/DisplayOLED)
 #add_subdirectory(libs/SimpleIO)
