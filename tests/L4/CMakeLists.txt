@@ -1,5 +1,5 @@
 
-add_executable(testshell testshell.c)
+add_executable(test_main test_main.c test.c)
 
 target_link_libraries(testshell PRIVATE libstefi)
 
