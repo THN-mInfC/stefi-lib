@@ -1,6 +1,4 @@
 #include "test.h"
-
-#include <stdint.h>
 #include <libstefi/util.h>
 
 int test_passed = 0;

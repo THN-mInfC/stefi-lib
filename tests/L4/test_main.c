@@ -1,4 +1,3 @@
-
 #include <libstefi/uart.h>
 #include <libstefi/util.h>
 

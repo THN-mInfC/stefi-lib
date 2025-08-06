@@ -1,5 +1,4 @@
 #pragma once
-#include <stdint.h>
 #include <stdio.h>
 
 typedef void (*test_fn_t)();
