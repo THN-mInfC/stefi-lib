@@ -48,7 +48,7 @@ add_subdirectories(${CMAKE_SOURCE_DIR}/tests)
 
 # Add subdirectory for the lib
 #add_subdirectory(libs/DisplayOLED)
-#add_subdirectory(libs/SimpleIO)
+add_subdirectory(components/simple_io)
 
 #target_link_libraries(libstefi PUBLIC DisplayOLED)
-#target_link_libraries(libstefi PUBLIC SimpleIO)
+target_link_libraries(libstefi PUBLIC SimpleIO)
