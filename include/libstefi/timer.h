@@ -8,6 +8,7 @@
 #include "interrupts.h"
 
 typedef enum {
+    TIMER_INVALID = 0,
     TIMER1 = 1,
     TIMER2 = 2,
     TIMER3 = 3,

@@ -11,7 +11,7 @@ typedef enum {
         PIN_ANALOG = MODER_ANALOG,
         PIN_OPEN_DRAIN,
         PIN_ALT_OPEN_DRAIN,
-        PIN_PWM,
+        PIN_IN_PULLUP,
 } pin_mode_t;
 
 typedef enum {
@@ -37,9 +37,11 @@ void pin_set_pull(pin_id_t, pin_pull_t);
 void pin_set_drive(pin_id_t, pin_drive_t);
 void pin_set_alt(pin_id_t, pin_alt_t);
 
-pin_value_t pin_get_value(pin_id_t);
-void pin_set_value(pin_id_t, pin_value_t);
-void pin_low(pin_id_t);
-void pin_high(pin_id_t);
+static inline pin_value_t pin_get_value(pin_id_t pin) {
+        return gpio_read(pin);
+}
+static inline void pin_set_value(pin_id_t pin, pin_value_t val) {
+        gpio_write(pin, val);
+}
 
 

@@ -1,5 +1,7 @@
 add_library(SimpleIO STATIC
         pin.c
+        board.c
+        led.c
 )
 
 target_include_directories(SimpleIO PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
