@@ -1,5 +1,6 @@
 #include "board.h"
 
+#include <button.h>
 #include "led.h"
 #include <stddef.h>
 #include <libstefi/systick.h>
@@ -107,9 +108,12 @@ void board_init() {
         led_init(i, OUTPUT);
     }
 
+    //initialize all leds, default, output not PWM
+    for(uint32_t i = 0; i < NUM_BUTTONS; i++) {
+        button_init(i);
+    }
+
     //systick init
     systick_init();
     systick_start();
-
-
 }
