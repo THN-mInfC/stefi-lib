@@ -221,7 +221,7 @@ void timer_set_ic_edge(const tim_id_t timer_id, timer_channel_t channel, timer_e
 }
 
 /*******Interrupts*****************/
-void timer_interrupt_register_handler(const tim_id_t timer_id, callbackfn_t fn) {
+void timer_update_interrupt_register_handler(const tim_id_t timer_id, callbackfn_t fn) {
     timer_handlers[timer_id].callback[TIMER_UPDATE_IRQ] = fn;
 }
 
@@ -231,7 +231,7 @@ void timer_cc_interrupt_register_handler(const tim_id_t timer_id, timer_interrup
 
 static void timer_dispatch(const tim_id_t timer_id, const timer_interrupt_t irq_type)
 {
-    timer_handlers[timer_id].callback[irq_type]();
+    timer_handlers[timer_id].callback[irq_type](timer_handlers[timer_id].aux_data);
 }
 
 static inline void timer_clear_interruptflag(const tim_id_t timer_id) {
