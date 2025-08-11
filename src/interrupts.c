@@ -24,7 +24,7 @@ static inline uint8_t get_irq_num(void)
 void generic_dispatch()
 {
     uint8_t irq_num = get_irq_num();
-    module.handlers[irq_num].callback();
+    module.handlers[irq_num].callback(module.handlers[irq_num].aux_data);
 }
 
 //Usage: interrupts_register_handler(TIMx_IRQn, tim_irq_handler);

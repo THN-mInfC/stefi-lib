@@ -21,6 +21,11 @@ typedef enum {
     NUM_BUTTONS
 } stefi_button_t;
 
+typedef enum {
+    DEBOUNCE_TIMER,
+    NUM_RESERVED_TIMER,
+} stefi_timer_t;
+
 typedef struct {
     gpio_id_t portpin;
     sig_t off_state;
@@ -34,6 +39,12 @@ typedef struct {
     gpio_id_t portpin;
     pupdr_t pull;
 } button_config_t;
+
+typedef struct {
+    tim_id_t timer;
+    uint32_t prescaler;
+    uint32_t period;
+} hardware_timer_config_t;
 
 //FRAM Configuration: later freq, mode, ...
 typedef struct {
@@ -58,6 +69,7 @@ typedef struct {
 
 extern led_config_t leds[NUM_LEDS];
 extern button_config_t buttons[NUM_BUTTONS];
+extern hardware_timer_config_t hardware_timers[NUM_RESERVED_TIMER];
 extern freepin_config_t freepin[NUM_GPIO_PINS];
 
 void board_init();

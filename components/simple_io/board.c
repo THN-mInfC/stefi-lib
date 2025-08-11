@@ -10,10 +10,11 @@
  * Board-specific configuration with default peripheral mapping
  *
  * Note:
+ *  Systick - used for delay functions
  *  Timer 3  - used for fading the green, blue LED.
- *  Timer 4  - Button debouncing
- *  Timer 5  - controls the servo driver.
- *  Timer 6  - used for timed ADC/DAC reading/writing.
+ *  Timer 4  -
+ *  Timer 5  -
+ *  Timer 6  - used for Button debouncing.
  */
 
 
@@ -31,6 +32,10 @@ led_config_t leds[NUM_LEDS] = {
     [LED2_GREEN] = {C6, HIGH, TIMER3, 1, AF2},
     [LED3_BLUE] = {C7, HIGH, TIMER3, 2, AF2},
     [LED_NUCLEO]= {A5, LOW},
+};
+
+hardware_timer_config_t hardware_timers[NUM_RESERVED_TIMER] = {
+    [DEBOUNCE_TIMER] = {TIMER6, 4000, 10},
 };
 
 fm25cl64_config_t fram ={
@@ -113,7 +118,13 @@ void board_init() {
         button_init(i);
     }
 
-    //systick init
+    //intialize default timers
+    for(uint32_t i = 0; i < NUM_RESERVED_TIMER; i++) {
+        timer_init(hardware_timers[i].timer);
+        timer_set_period(hardware_timers[i].timer, hardware_timers[i].prescaler, hardware_timers[i].period);
+    }
+
+    //initialize systick timer
     systick_init();
     systick_start();
 }

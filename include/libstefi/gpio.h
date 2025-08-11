@@ -65,6 +65,7 @@ static inline void gpio_toggle(gpio_id_t portpin)
 void gpio_enable_interrupt(gpio_id_t portpin,  edge_t edge);
 void gpio_disable_interrupt(gpio_id_t portpin,  edge_t edge);
 void gpio_interrupt_register_handler(gpio_id_t portpin, callbackfn_t);
+void gpio_interrupt_register_handler_context(const gpio_id_t portpin, callbackfn_t fn, void *aux);
 
 /* For testing*/
 moder_t gpio_get_mode(gpio_id_t portpin);

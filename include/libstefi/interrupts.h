@@ -5,7 +5,7 @@
 /**********************************************************************/
 
 //Datatypes
-typedef void (*callbackfn_t)();
+typedef void (*callbackfn_t)(void *aux_data);
 
 enum _nvic_interrupt_sources {
     INTERRUPT_SOURCE_NONE = -1,

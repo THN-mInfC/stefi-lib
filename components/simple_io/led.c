@@ -1,7 +1,6 @@
 #include "libstefi/peripheral.h"
 
 #include "led.h"
-#include "board.h"
 
 //Functions
 void led_init(stefi_led_t id, pin_mode mode) {
