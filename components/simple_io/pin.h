@@ -1,6 +1,7 @@
 #pragma once
 
 #include "libstefi/gpio.h"
+#include "libstefi/timer.h"
 
 typedef gpio_id_t pin_id_t;
 
