@@ -1,13 +1,12 @@
-#include <hardware_timer.h>
 #include <libstefi/rng.h>
 
 #include "stdio.h"
 #include "led.h"
 #include "button.h"
 #include "ssd1306.h"
+#include "hardware_timer.h"
 
 #define TIMER_ID TIMER4
-
 
 void s0_action() {
     //wait a random timer
@@ -44,17 +43,15 @@ void setup() {
     rng_init();
     button_interrupt_init(BUTTON_S0, s0_action);
     button_interrupt_init(BUTTON_S1, s1_action);
-
     //initialize reaction timer
     htimer_init_periodic_ms(TIMER_ID, 5000, timer_expires); //Timer freq = 100Hz
-    htimer_start(TIMER_ID);
+
+    printf("\r\n Start Reaction Game \r\n");
 }
 
 void main() {
     //initialize uart
-    printf("\r\n Start Reaction Game \r\n");
     setup();
-
     while(1) {
     }
 }
