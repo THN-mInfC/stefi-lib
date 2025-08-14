@@ -59,7 +59,7 @@ void timer_stop(const tim_id_t timer_id)
     tim->CNT = 0;
 }
 
-uint32_t timer_getcount(const tim_id_t timer_id)
+uint32_t timer_get_count(const tim_id_t timer_id)
 {
     assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
