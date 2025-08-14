@@ -1,10 +1,9 @@
 add_library(SimpleIO STATIC
         pin.c
-        board.c
         led.c
         button.c
         hardware_timer.c
 )
 
 target_include_directories(SimpleIO PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SimpleIO PUBLIC libstefi)
+target_link_libraries(SimpleIO PUBLIC board libstefi)
