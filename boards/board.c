@@ -1,10 +1,16 @@
 #include "board.h"
 
-#include <button.h>
+#include "button.h"
 #include "led.h"
+#include "ssd1306.h"
+
 #include <stddef.h>
+#include <libstefi/i2c.h>
 #include <libstefi/systick.h>
 #include <libstefi/uart.h>
+
+#include "../components/display_oled/ssd1306.h"
+
 
 /*
  * Board-specific configuration with default peripheral mapping
@@ -44,6 +50,14 @@ fm25cl64_config_t fram ={
     .sck_portpin = A5,
     .miso_portpin = A6,
     .mosi_portpin = A7,
+};
+
+ssd1306_config_t ssd1306 = {
+    .i2c_id = 2,
+    .i2c_addr = 0x3C,
+    .scl = B10,
+    .sda = B11,
+    .display_switch_pin = B5,
 };
 
 freepin_config_t freepin[NUM_GPIO_PINS] = {
@@ -127,4 +141,11 @@ void board_init() {
     //initialize systick timer
     systick_init();
     systick_start();
+
+    //initialze display
+    i2c_gpio_init(ssd1306.scl, ssd1306.sda);
+    gpio_write(ssd1306.display_switch_pin, HIGH);
+    gpio_set_mode(ssd1306.display_switch_pin, MODER_OUTPUT);
+    gpio_write(ssd1306.display_switch_pin, LOW); //Display On
+    ssd1306_init(ssd1306.i2c_id, ssd1306.i2c_addr);
 }

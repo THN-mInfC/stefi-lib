@@ -1,4 +1,5 @@
 #pragma once
+
 #include "libstefi/gpio.h"
 #include "libstefi/timer.h"
 #include "libstefi/peripheral.h"
@@ -32,7 +33,7 @@ typedef struct {
     tim_id_t timer_id;
     uint32_t channel;
     afr_t af_mode;
-}  led_config_t;
+} led_config_t;
 
 //Button Confguration
 typedef struct {
@@ -54,6 +55,16 @@ typedef struct {
     gpio_id_t miso_portpin;
     gpio_id_t mosi_portpin;
 } fm25cl64_config_t;
+
+typedef peripheral_i2c_t i2c_id_t;
+
+typedef struct {
+    i2c_id_t i2c_id;
+    uint8_t i2c_addr;
+    gpio_id_t scl;
+    gpio_id_t sda;
+    gpio_id_t display_switch_pin;
+} ssd1306_config_t;
 
 typedef peripheral_adc_t adc_id_t;
 

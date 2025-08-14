@@ -1,12 +1,17 @@
 #include <button.h>
 #include <pin.h>
+#include <ssd1306.h>
 #include <stdio.h>
+#include <string.h>
+#include <internal/i2c_internal.h>
 
 #include "led.h"
 #include "board.h"
 #include "hardware_timer.h"
 
 #include <libstefi/systick.h>
+#include <libstefi/util.h>
+
 #define DELAY_MS 100
 
 void led_chaser() {
@@ -126,6 +131,18 @@ void test_hardware_timer_input_capture() {
     }
 }
 
+
+void test_display() {
+    char buffer[10];
+    led_off(LED0_RED);
+    ssd1306_clear_screen();
+    sprintf(buffer, "TIME: ");
+    ssd1306_putstring( 5, 0, buffer);
+    ssd1306_update_screen();
+    while(1) {
+    }
+}
+
 void main() {
     board_init();
     //test_led_button();
@@ -134,4 +151,7 @@ void main() {
     //test_hardware_timer_periodic();
     //test_hardware_timer_pwm();
     //test_hardware_timer_input_capture();
+    test_display();
 }
+
+
