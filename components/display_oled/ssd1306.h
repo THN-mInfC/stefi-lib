@@ -17,8 +17,6 @@ struct render_region {
     uint32_t height;
 };
 
-void test_init();
-
 // Public API
 void ssd1306_init(peripheral_i2c_t i2c_id, uint8_t addr);
 void ssd1306_update_screen(void);
