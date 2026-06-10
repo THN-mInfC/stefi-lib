@@ -3,7 +3,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/toolchain-arm.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/target-mcu.cmake)
 
 # project settings
-project(examples C ASM)
+project(stefi C ASM)
 set(CMAKE_C_STANDARD 11)
 
 add_library(libstefi
@@ -25,6 +25,8 @@ add_library(libstefi
         src/wwdg.c
 )
 
+add_library(stefi::hal ALIAS libstefi)
+
 target_include_directories(libstefi PUBLIC include)
 
 # Private implementation headers
@@ -32,6 +34,12 @@ target_include_directories(libstefi
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/internal
 )
+
+# Layer 2 (board) and layer 3 (components). Dependency direction is
+# app -> components -> board -> libstefi; the HAL links nothing above it.
+add_subdirectory(boards)
+add_subdirectory(components/simple_io)
+add_subdirectory(components/display_oled)
 
 # Function to automatically add all subdirectories under a given directory
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
@@ -47,12 +55,3 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     add_subdirectories(${CMAKE_SOURCE_DIR}/examples)
     add_subdirectories(${CMAKE_SOURCE_DIR}/tests)
 endif ()
-
-# Add subdirectory for the lib
-add_subdirectory(boards)
-add_subdirectory(components/simple_io)
-add_subdirectory(components/display_oled)
-
-#target_link_libraries(libstefi PUBLIC DisplayOLED)
-target_link_libraries(libstefi PUBLIC SimpleIO)
-target_link_libraries(libstefi PUBLIC DisplayOLED)
