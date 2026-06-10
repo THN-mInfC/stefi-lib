@@ -3,7 +3,6 @@
 #include <ssd1306.h>
 #include <stdio.h>
 #include <string.h>
-#include <internal/i2c_internal.h>
 
 #include "led.h"
 #include "board.h"
