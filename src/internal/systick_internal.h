@@ -1,5 +1,5 @@
 #pragma once
-#include "libstefi/board.h"
+#include "libstefi/clock_config.h"
 #include <stdint.h>
 
 #define TICKS_PER_S SYSCLK

@@ -9,9 +9,6 @@
 #include <libstefi/systick.h>
 #include <libstefi/uart.h>
 
-#include "../components/display_oled/ssd1306.h"
-
-
 /*
  * Board-specific configuration with default peripheral mapping
  *
