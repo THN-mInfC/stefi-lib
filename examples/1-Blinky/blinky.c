@@ -5,9 +5,9 @@
 #include "libstefi/peripheral.h"
 
 
-#define LED A5
+#define LED C5
 void main(){
-    peripheral_gpio_enable(PERIPHERAL_GPIOA);
+    peripheral_gpio_enable(PERIPHERAL_GPIOC);
     gpio_set_mode(LED, MODER_OUTPUT); // LED1 on Port C pin 5 on STefi
 
     while(1) {

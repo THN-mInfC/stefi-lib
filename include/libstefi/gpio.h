@@ -63,7 +63,6 @@ static inline void gpio_toggle(gpio_id_t portpin)
 
 /* GPIO Interrupt functions (extended interrupts mapped to GPIO Pins)*/
 void gpio_enable_interrupt(gpio_id_t portpin,  edge_t edge);
-void gpio_disable_interrupt(gpio_id_t portpin,  edge_t edge);
 void gpio_interrupt_register_handler(gpio_id_t portpin, callbackfn_t);
 void gpio_interrupt_register_handler_context(const gpio_id_t portpin, callbackfn_t fn, void *aux);
 

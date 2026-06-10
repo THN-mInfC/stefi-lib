@@ -34,18 +34,19 @@ target_include_directories(libstefi
 )
 
 # Function to automatically add all subdirectories under a given directory
-function(add_subdirectories base_dir)
-    file(GLOB subdirectories LIST_DIRECTORIES true ${base_dir}/*)
-    foreach(subdir ${subdirectories})
-        if(IS_DIRECTORY ${subdir})
-            add_subdirectory(${subdir})
-        endif()
-    endforeach()
-endfunction()
-
-# Automatically add all example and test projects
-add_subdirectories(${CMAKE_SOURCE_DIR}/examples)
-add_subdirectories(${CMAKE_SOURCE_DIR}/tests)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    function(add_subdirectories base_dir)
+        file(GLOB subdirectories LIST_DIRECTORIES true ${base_dir}/*)
+        foreach(subdir ${subdirectories})
+            if(IS_DIRECTORY ${subdir})
+                add_subdirectory(${subdir})
+            endif()
+        endforeach()
+    endfunction()
+    # Automatically add all example and test projects
+    add_subdirectories(${CMAKE_SOURCE_DIR}/examples)
+    add_subdirectories(${CMAKE_SOURCE_DIR}/tests)
+endif ()
 
 # Add subdirectory for the lib
 add_subdirectory(boards)

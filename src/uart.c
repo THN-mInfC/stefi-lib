@@ -25,10 +25,6 @@ void uart_configure(){
     USART2->BRR = 16000000/115200; //G4: 16Mhz, L4: 4Mhz
     USART2->CR1 |= (1 << 0) | (1 << 2) | (1 << 3); //uart, receive, Transmit Enable
 
-    //USART1->CR1 = 0;
-    USART1->BRR = 1666; //16000000/115200
-    USART1->CR1 |= (1 << 0) | (1 << 2) | (1 << 3); //uart, receive, Transmit Enable
-
     while (!(USART2->ISR & BIT(21)) || !(USART2->ISR & BIT(22)));
 }
 
