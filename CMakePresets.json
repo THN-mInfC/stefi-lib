@@ -1,0 +1,27 @@
+  {
+  "version": 5,
+  "configurePresets": [
+    {
+      "name": "debug",
+      "displayName": "Debug (arm-none-eabi)",
+      "binaryDir": "${sourceDir}/cmake-build-debug",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-arm.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release (arm-none-eabi)",
+      "binaryDir": "${sourceDir}/cmake-build-release",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-arm.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "debug", "configurePreset": "debug" },
+    { "name": "release", "configurePreset": "release" }
+  ]
+}

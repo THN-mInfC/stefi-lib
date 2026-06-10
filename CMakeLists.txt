@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.24)
-include(${CMAKE_SOURCE_DIR}/cmake/toolchain-arm.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/target-mcu.cmake)
+
+# Default to the bundled cross toolchain when none is given, so a plain
+# `cmake -B build` still works. Consuming projects (add_subdirectory /
+# FetchContent) set CMAKE_TOOLCHAIN_FILE themselves before their project().
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+    set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchain-arm.cmake
+            CACHE FILEPATH "CMake toolchain file")
+endif()
 
 # project settings
 project(stefi C ASM)
@@ -27,6 +33,11 @@ add_library(libstefi
 
 add_library(stefi::hal ALIAS libstefi)
 
+# MCU flags, linker script and runtime link options are attached to the
+# libstefi target (not directory-wide), so they propagate to anything that
+# links stefi::hal — including executables in external projects.
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/target-mcu.cmake)
+
 target_include_directories(libstefi PUBLIC include)
 
 # Private implementation headers
@@ -41,8 +52,16 @@ add_subdirectory(boards)
 add_subdirectory(components/simple_io)
 add_subdirectory(components/display_oled)
 
-# Function to automatically add all subdirectories under a given directory
+# Examples and tests are built by default only when stefi-lib is the
+# top-level project, never when it is consumed by an application.
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    option(STEFI_BUILD_EXAMPLES "Build the bundled examples and on-hardware tests" ON)
+else()
+    option(STEFI_BUILD_EXAMPLES "Build the bundled examples and on-hardware tests" OFF)
+endif()
+
+if(STEFI_BUILD_EXAMPLES)
+    # Automatically add all subdirectories under a given directory
     function(add_subdirectories base_dir)
         file(GLOB subdirectories LIST_DIRECTORIES true ${base_dir}/*)
         foreach(subdir ${subdirectories})
@@ -52,6 +71,6 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         endforeach()
     endfunction()
     # Automatically add all example and test projects
-    add_subdirectories(${CMAKE_SOURCE_DIR}/examples)
-    add_subdirectories(${CMAKE_SOURCE_DIR}/tests)
+    add_subdirectories(${CMAKE_CURRENT_SOURCE_DIR}/examples)
+    add_subdirectories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 endif ()
