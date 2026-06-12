@@ -12,6 +12,11 @@
  * in libstefi (gpio_id_t: F0 = 0x500, F1; peripheral: PERIPHERAL_GPIOF).
  */
 
+/* Boot clock: the G431 resets onto the 16 MHz HSI16. Passed to
+ * systick_init(); update the SysTick (and UART/I2C) setup if the
+ * clock is reconfigured. */
+#define BOARD_SYSCLK (16000000U)
+
 typedef enum {
     LED1 = 0,       // PA10 — shared net with the buzzer!
     LED_NUCLEO,     // LD2 on the G431KB (PB8)

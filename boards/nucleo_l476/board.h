@@ -4,6 +4,11 @@
 #include "libstefi/timer.h"
 #include "libstefi/peripheral.h"
 
+/* Boot clock: the L476 resets onto the 4 MHz MSI. Passed to
+ * systick_init(); update the SysTick (and UART/I2C) setup if the
+ * clock is reconfigured (e.g. system_init() -> 80 MHz). */
+#define BOARD_SYSCLK (4000000U)
+
 typedef enum {
     LED0_RED = 0,
     LED1_YELLOW,

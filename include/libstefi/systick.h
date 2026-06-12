@@ -7,8 +7,12 @@
 
 /**
  * @brief Initialize SysTick to trigger interrupt every 1 ms
+ * @param sysclk_hz Current system clock in Hz. The boards pass their boot
+ *                  clock (BOARD_SYSCLK: 4 MHz MSI on the L476, 16 MHz HSI16
+ *                  on the G431). After reconfiguring the clock (e.g.
+ *                  system_init() to 80 MHz), call again with the new value.
  */
-void systick_init(void);
+void systick_init(uint32_t sysclk_hz);
 
 /**
  * @brief Start the SysTick timer

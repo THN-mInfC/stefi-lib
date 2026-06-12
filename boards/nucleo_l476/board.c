@@ -136,7 +136,7 @@ void board_init() {
     }
 
     //initialize systick timer
-    systick_init();
+    systick_init(BOARD_SYSCLK);
     systick_start();
 
     //initialze display

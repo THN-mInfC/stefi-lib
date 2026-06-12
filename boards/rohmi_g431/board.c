@@ -143,7 +143,7 @@ void board_init() {
     gpio_set_mode(imu.int1_portpin, MODER_INPUT);
 
     //initialize systick timer
-    systick_init();
+    systick_init(BOARD_SYSCLK);
     systick_start();
 
     //I2C2 bus for the IMU; IMU register setup is the component's job
