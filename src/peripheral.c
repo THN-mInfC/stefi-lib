@@ -12,6 +12,9 @@ static const peripheral_dev_t peripheral_gpio_dev[PERIPHERAL_GPIO_COUNT] = {
     [PERIPHERAL_GPIOA] = {&RCC->AHB2ENR, 0},
     [PERIPHERAL_GPIOB] = {&RCC->AHB2ENR, 1},
     [PERIPHERAL_GPIOC] = {&RCC->AHB2ENR, 2},
+    [PERIPHERAL_GPIOD] = {&RCC->AHB2ENR, 3},
+    [PERIPHERAL_GPIOE] = {&RCC->AHB2ENR, 4},
+    [PERIPHERAL_GPIOF] = {&RCC->AHB2ENR, 5},
 };
 
 static const peripheral_dev_t peripheral_tim_dev[PERIPHERAL_TIM_COUNT] = {

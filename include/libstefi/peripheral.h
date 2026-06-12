@@ -7,6 +7,9 @@ enum peripheral_gpio {
     PERIPHERAL_GPIOA,
     PERIPHERAL_GPIOB,
     PERIPHERAL_GPIOC,
+    PERIPHERAL_GPIOD, //D/E unused so far; they keep the enum aligned with
+    PERIPHERAL_GPIOE, //the port index from gpio_get_port_from_portpin()
+    PERIPHERAL_GPIOF,
     PERIPHERAL_GPIO_COUNT
 };
 

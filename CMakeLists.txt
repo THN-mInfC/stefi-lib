@@ -46,6 +46,15 @@ target_include_directories(libstefi
         ${CMAKE_CURRENT_SOURCE_DIR}/src/internal
 )
 
+# Board selection: each board is a subdirectory of boards/ providing
+# board.{h,c}.
+set(STEFI_BOARD "nucleo_l476" CACHE STRING "Target board (subdirectory of boards/)")
+set_property(CACHE STEFI_BOARD PROPERTY STRINGS nucleo_l476 rohmi_g431)
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/boards/${STEFI_BOARD}/board.c)
+    message(FATAL_ERROR "Unknown STEFI_BOARD '${STEFI_BOARD}' — no boards/${STEFI_BOARD}/board.c")
+endif()
+message(STATUS "stefi-lib board: ${STEFI_BOARD}")
+
 # Layer 2 (board) and layer 3 (components). Dependency direction is
 # app -> components -> board -> libstefi; the HAL links nothing above it.
 add_subdirectory(boards)
@@ -70,7 +79,13 @@ if(STEFI_BUILD_EXAMPLES)
             endif()
         endforeach()
     endfunction()
-    # Automatically add all example and test projects
-    add_subdirectories(${CMAKE_CURRENT_SOURCE_DIR}/examples)
-    add_subdirectories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    # Automatically add all example and test projects. Examples 1-7 and the
+    # tests are written against the STefi adapter devices (buttons, OLED),
+    # nucleo_l476 only; the Rohmi board has its own board test.
+    if(STEFI_BOARD STREQUAL "nucleo_l476")
+        add_subdirectories(${CMAKE_CURRENT_SOURCE_DIR}/examples)
+        add_subdirectories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    elseif(STEFI_BOARD STREQUAL "rohmi_g431")
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples/8-Rohmi-BoardTest)
+    endif()
 endif ()
