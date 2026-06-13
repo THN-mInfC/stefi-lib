@@ -81,11 +81,36 @@ typedef struct {
     uint32_t adc_channel;
 } freepin_config_t;
 
-#define NUM_GPIO_PINS 47
+/* Header pins free for applications — i.e. not claimed by an on-board
+ * peripheral (LEDs, buttons, FRAM, USART2/printf, EMB display). */
+#define NUM_GPIO_PINS 30
 
 extern led_config_t leds[NUM_LEDS];
 extern button_config_t buttons[NUM_BUTTONS];
 extern hardware_timer_config_t hardware_timers[NUM_RESERVED_TIMER];
 extern freepin_config_t freepin[NUM_GPIO_PINS];
+
+/*
+ * CON20AP (J1) expansion connector — only the pins broken out there that are
+ * NOT already used by an on-board peripheral. The connector's other lines are
+ * shared buses, so they are excluded here:
+ *   SCK/MISO/MOSI/NSS  -> SPI1 / FRAM
+ *   SCL/SDA            -> I2C2 / EMB display
+ *   TXD/RXD (=PCS1/2)  -> USART2 / printf (PA2/PA3)
+ *   TAS2 / INT2        -> buttons
+ * These six pins also appear in freepin[]; CON20AP is just another physical
+ * breakout of the same MCU pins (not a duplication bug).
+ */
+typedef enum {
+    CON20AP_ADC0 = 0,   // PA0  — ADC1_IN5,  TIM2_CH1
+    CON20AP_ADC1,       // PA1  — ADC1_IN6,  TIM2_CH2
+    CON20AP_ECLK,       // PC8
+    CON20AP_OC2,        // PC9
+    CON20AP_INT0,       // PC10 — interrupt-capable
+    CON20AP_OC1B,       // PC11
+    NUM_CON20AP_PINS
+} stefi_con20ap_t;
+
+extern freepin_config_t con20ap[NUM_CON20AP_PINS];
 
 void board_init();
