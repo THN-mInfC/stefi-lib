@@ -123,7 +123,10 @@ void board_init() {
     timer_set_period(motors[MOTOR_L].timer_id, 16, 100);
     for(uint32_t i = 0; i < NUM_MOTORS; i++) {
         timer_set_mode_pwm(motors[i].timer_id, motors[i].channel);
-        timer_set_compare(motors[i].timer_id, motors[i].channel, 0);
+        timer_cc_enable(motors[i].timer_id, motors[i].channel, false);
+        //OC polarity is active low (see timer_set_cc_io): compare == period
+        //means 0% duty (motor off); speed s% -> compare = 100 - s
+        timer_set_compare(motors[i].timer_id, motors[i].channel, 100);
     }
     timer_start(motors[MOTOR_L].timer_id);
 
