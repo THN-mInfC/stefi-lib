@@ -9,12 +9,12 @@
 
 volatile uint32_t ms_counter = 0; //2^32 => Overflow in 49 days
 
-void systick_init()
+void systick_init(uint32_t sysclk_hz)
 {
     SysTick->CTRL |= (1 << 2); //1: Clock 0: Clock/8.
     SysTick->CTRL |= (1 << 1); //enable interrupt
 
-    SysTick->LOAD = TICKS_PER_MS ; //System Core Clock=16MHz
+    SysTick->LOAD = sysclk_hz / 1000U; //ticks per ms
     SysTick->VAL   = 0;
 }
 
