@@ -55,12 +55,19 @@ enum peripheral_adc {
     PERIPHERAL_ADC_COUNT
 };
 
+enum peripheral_dma {
+    PERIPHERAL_DMA1,
+    PERIPHERAL_DMA2,
+    PERIPHERAL_DMA_COUNT
+};
+
 typedef enum peripheral_gpio peripheral_gpio_t;
 typedef enum peripheral_tim peripheral_tim_t;
 typedef enum peripheral_uart peripheral_uart_t;
 typedef enum peripheral_i2c peripheral_i2c_t;
 typedef enum peripheral_spi peripheral_spi_t;
 typedef enum peripheral_adc peripheral_adc_t;
+typedef enum peripheral_dma peripheral_dma_t;
 
 /**
  * @brief Enable clock for specified GPIO peripheral
@@ -79,5 +86,6 @@ void peripheral_uart_enable(peripheral_uart_t);
 void peripheral_i2c_enable(peripheral_i2c_t id);
 void peripheral_spi_enable(peripheral_spi_t id);
 void peripheral_adc_enable(peripheral_adc_t id);
+void peripheral_dma_enable(peripheral_dma_t id);
 void peripheral_exti_enable();
 void peripheral_rng_enable();
