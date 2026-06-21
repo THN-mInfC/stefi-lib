@@ -63,8 +63,8 @@ buzzer_config_t buzzer = {
 };
 
 lsm6dso_config_t imu = {
-    .i2c_id = PERIPHERAL_I2C2,
-    .i2c_addr = 0x6B,                      // TODO verify SA0 strap (0x6A if low)
+    .i2c_id = 2,                           // 1-based HAL id (i2c_* use id-1 indexing); I2C2
+    .i2c_addr = 0x6B,                      // SA0 high (confirmed via WHO_AM_I=0x6C)
     .scl = A9,
     .sda = A8,
     .int1_portpin = A12,                   // INT2 not routed to the MCU

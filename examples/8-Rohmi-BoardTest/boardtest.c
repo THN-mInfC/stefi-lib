@@ -1,92 +1,85 @@
 #include "board.h"
 #include "led.h"
+#include "motor.h"
+#include "line_sensor.h"
+#include "imu.h"
 
-#include <libstefi/i2c.h>
 #include <libstefi/systick.h>
 #include <stdio.h>
 
 /*
- * Rohmi (NUCLEO-G431KB) board smoke test: LSM6DSO IMU on I2C2
- * (SCL = PA9, SDA = PA8, addr 0x6B per board.c — 0x6A if SA0 is low).
+ * Rohmi (NUCLEO-G431KB) board smoke test.
  *
- * Prints WHO_AM_I (must be 0x6C), then streams accel [mg] and gyro [mdps]
- * at 2 Hz on the VCP (115200 baud). Board flat on the desk: expect
- * z = +1000 mg, x = y = 0, gyro = 0 (small offsets are normal).
+ * LSM6DSO IMU on I2C2 via the imu component: prints WHO_AM_I (must be 0x6C),
+ * then streams accel [mg] and gyro [mdps] at 2 Hz on the VCP (115200 baud).
+ * Board flat on the desk: expect z = +1000 mg, x = y = 0, gyro = 0 (small
+ * offsets are normal). The I2C driver blocks without timeout on NACK: if the
+ * output stops at "probing", the address (SA0 strap) or the wiring is wrong.
  *
- * The I2C driver blocks without timeout on NACK: if the output stops at
- * "probing", the address (SA0 strap) or the wiring is wrong.
+ * Also exercises the motor + line_sensor components: every loop also prints the
+ * line-sensor state. The motor self-test is OFF by default so the car does not
+ * drive on power-up — put it on blocks, then set MOTOR_SELFTEST to 1 to verify
+ * direction (MOTOR_FORWARD_LEVEL) and duty.
  */
+#define MOTOR_SELFTEST 0
 
-#define IMU_I2C_ID   2     //1-based HAL id: I2C2 (NOT the 0-based enum!)
-#define IMU_ADDR     0x6B  //retry SA0-high addr now that the bus is alive
-
-#define REG_WHO_AM_I 0x0F
-#define REG_CTRL1_XL 0x10
-#define REG_CTRL2_G  0x11
-#define REG_OUTX_L_G 0x22  //gyro x/y/z then accel x/y/z, auto-increment
-
-static uint8_t reg_read(uint8_t reg) {
-    uint8_t v = 0;
-    i2c_writeto(IMU_I2C_ID, IMU_ADDR, &reg, 1, true);
-    i2c_readfrom(IMU_I2C_ID, IMU_ADDR, &v, 1);
-    return v;
+static const char *line_state_name(line_state_t s) {
+    switch (s) {
+        case LINE_STATE_LOST:  return "LOST";
+        case LINE_STATE_LEFT:  return "LEFT";
+        case LINE_STATE_RIGHT: return "RIGHT";
+        case LINE_STATE_BOTH:  return "BOTH";
+        default:               return "?";
+    }
 }
 
-static void reg_read_burst(uint8_t reg, uint8_t *buf, uint32_t len) {
-    i2c_writeto(IMU_I2C_ID, IMU_ADDR, &reg, 1, true);
-    i2c_readfrom(IMU_I2C_ID, IMU_ADDR, buf, len);
-}
+#if MOTOR_SELFTEST
+static void motor_selftest(void) {
+    const int8_t speed = 30;            //gentle
+    printf("motor self-test: L+R forward \r\n");
+    motor_drive(MOTOR_L, speed);
+    motor_drive(MOTOR_R, speed);
+    systick_delay_ms(1000);
 
-static void reg_write(uint8_t reg, uint8_t val) {
-    i2c_writeto_reg(IMU_I2C_ID, IMU_ADDR, reg, &val, 1);
+    printf("motor self-test: L+R reverse \r\n");
+    motor_drive(MOTOR_L, -speed);
+    motor_drive(MOTOR_R, -speed);
+    systick_delay_ms(1000);
+
+    motor_stop_all();
+    printf("motor self-test: done \r\n");
 }
+#endif
 
 void main(void) {
     board_init();
-    //experiment: bus reads low — try the internal ~40k pull-ups in case the
-    //board has no external ones (works at 100 kHz on short traces)
-    gpio_set_pupd(imu.scl, PULL_UP);
-    gpio_set_pupd(imu.sda, PULL_UP);
-    i2c_init(IMU_I2C_ID);
-
-    //DIAGNOSTIC HACK (remove once the pull-up solder jumper is closed):
-    //the ~40k internal pull-ups give ~2us rise times — too slow for 100 kHz.
-    //Drop I2C2 to 10 kHz (RM0440 example value for 16 MHz I2CCLK) so the
-    //sluggish edges still satisfy the bus timing. Direct register poke,
-    //since i2c_init hardcodes the 100 kHz TIMINGR.
-    {
-        volatile uint32_t *i2c2_cr1     = (uint32_t *)0x40005800;
-        volatile uint32_t *i2c2_timingr = (uint32_t *)0x40005810;
-        *i2c2_cr1 &= ~1U;               //PE=0: TIMINGR writable
-        *i2c2_timingr = 0x3042C3C7;     //10 kHz @ 16 MHz
-        *i2c2_cr1 |= 1U;                //PE=1
-    }
 
     printf("\r\nRohmi board test: LSM6DSO IMU on I2C2 \r\n");
-    printf("probing addr 0x%02X \r\n", IMU_ADDR);
+    printf("probing addr 0x%02X \r\n", imu.i2c_addr);
 
-    uint8_t who = reg_read(REG_WHO_AM_I);
-    printf("WHO_AM_I = 0x%02X (expect 0x6C) \r\n", who);
+    bool ok = imu_init();
+    printf("WHO_AM_I = 0x%02X (expect 0x%02X) -> %s \r\n",
+           imu_who_am_i(), IMU_WHO_AM_I_EXPECT, ok ? "OK" : "FAIL");
 
-    reg_write(REG_CTRL1_XL, 0x40); //accel 104 Hz, +/-2g
-    reg_write(REG_CTRL2_G,  0x40); //gyro  104 Hz, 250 dps
+#if MOTOR_SELFTEST
+    motor_selftest();
+#else
+    motor_stop_all();
+#endif
 
     while (1) {
         led_toggle(LED_NUCLEO);
 
-        uint8_t raw[12];
-        reg_read_burst(REG_OUTX_L_G, raw, 12);
-        int16_t gx = (int16_t)((raw[1] << 8) | raw[0]);
-        int16_t gy = (int16_t)((raw[3] << 8) | raw[2]);
-        int16_t gz = (int16_t)((raw[5] << 8) | raw[4]);
-        int16_t ax = (int16_t)((raw[7] << 8) | raw[6]);
-        int16_t ay = (int16_t)((raw[9] << 8) | raw[8]);
-        int16_t az = (int16_t)((raw[11] << 8) | raw[10]);
+        printf("line: L=%d R=%d  state=%s \r\n",
+               line_sensor_on_line(LINE_SENSOR_L),
+               line_sensor_on_line(LINE_SENSOR_R),
+               line_state_name(line_sensor_state()));
 
-        //+/-2g: 0.061 mg/LSB; 250 dps: 8.75 mdps/LSB
-        printf("acc[mg] x=%5d y=%5d z=%5d | gyro[mdps] x=%7d y=%7d z=%7d \r\n",
-               ax * 61 / 1000, ay * 61 / 1000, az * 61 / 1000,
-               gx * 875 / 100, gy * 875 / 100, gz * 875 / 100);
+        imu_sample_t a, g;
+        imu_read(&a, &g);
+        printf("acc[mg] x=%5ld y=%5ld z=%5ld | gyro[mdps] x=%7ld y=%7ld z=%7ld \r\n",
+               (long) imu_accel_mg(a.x), (long) imu_accel_mg(a.y), (long) imu_accel_mg(a.z),
+               (long) imu_gyro_mdps(g.x), (long) imu_gyro_mdps(g.y), (long) imu_gyro_mdps(g.z));
 
         systick_delay_ms(500);
     }

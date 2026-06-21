@@ -6,4 +6,5 @@ endif()
 
 add_executable(rohmi_boardtest boardtest.c)
 
-target_link_libraries(rohmi_boardtest PRIVATE stefi::simpleio stefi::oled)
+target_link_libraries(rohmi_boardtest
+        PRIVATE stefi::simpleio stefi::oled stefi::motor stefi::line_sensor stefi::imu)
