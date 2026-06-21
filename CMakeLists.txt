@@ -30,6 +30,7 @@ add_library(libstefi
         src/adc.c
         src/wwdg.c
         src/flash.c
+        src/dma.c
 )
 
 add_library(stefi::hal ALIAS libstefi)
