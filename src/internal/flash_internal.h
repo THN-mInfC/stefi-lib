@@ -1,0 +1,48 @@
+#pragma once
+#include <stdint.h>
+
+/*
+ * STM32G431 embedded FLASH register block (RM0440 §3.7), base 0x40022000.
+ * Offsets cross-checked against configs/stm32g431.svd.
+ */
+typedef struct {
+    volatile uint32_t ACR;       // 0x00 access control
+    volatile uint32_t PDKEYR;    // 0x04 power-down key
+    volatile uint32_t KEYR;      // 0x08 unlock key
+    volatile uint32_t OPTKEYR;   // 0x0C option-byte unlock key
+    volatile uint32_t SR;        // 0x10 status
+    volatile uint32_t CR;        // 0x14 control
+    volatile uint32_t ECCR;      // 0x18 ECC
+    volatile uint32_t _rsvd1C;   // 0x1C
+    volatile uint32_t OPTR;      // 0x20 option
+} flash_t;
+
+#define FLASH_REG ((flash_t*) 0x40022000)
+
+/* Unlock keys (RM0440 §3.3.5). */
+#define FLASH_KEY1 0x45670123u
+#define FLASH_KEY2 0xCDEF89ABu
+
+/* CR bits. */
+#define FLASH_CR_PG       BIT(0)
+#define FLASH_CR_PER      BIT(1)
+#define FLASH_CR_PNB_POS  3u
+#define FLASH_CR_PNB_MSK  (0x7Fu << FLASH_CR_PNB_POS)   /* 7 bits: pages 0..63 */
+#define FLASH_CR_STRT     BIT(16)
+#define FLASH_CR_LOCK     BIT(31)
+
+/* SR bits. */
+#define FLASH_SR_EOP      BIT(0)
+#define FLASH_SR_OPERR    BIT(1)
+#define FLASH_SR_PROGERR  BIT(3)
+#define FLASH_SR_WRPERR   BIT(4)
+#define FLASH_SR_PGAERR   BIT(5)
+#define FLASH_SR_SIZERR   BIT(6)
+#define FLASH_SR_PGSERR   BIT(7)
+#define FLASH_SR_MISERR   BIT(8)
+#define FLASH_SR_FASTERR  BIT(9)
+#define FLASH_SR_BSY      BIT(16)
+
+#define FLASH_SR_ALL_ERR (FLASH_SR_OPERR | FLASH_SR_PROGERR | FLASH_SR_WRPERR | \
+                          FLASH_SR_PGAERR | FLASH_SR_SIZERR | FLASH_SR_PGSERR | \
+                          FLASH_SR_MISERR | FLASH_SR_FASTERR)

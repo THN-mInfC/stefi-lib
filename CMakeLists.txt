@@ -29,6 +29,7 @@ add_library(libstefi
         src/spi.c
         src/adc.c
         src/wwdg.c
+        src/flash.c
 )
 
 add_library(stefi::hal ALIAS libstefi)
@@ -60,6 +61,9 @@ message(STATUS "stefi-lib board: ${STEFI_BOARD}")
 add_subdirectory(boards)
 add_subdirectory(components/simple_io)
 add_subdirectory(components/display_oled)
+add_subdirectory(components/motor)
+add_subdirectory(components/line_sensor)
+add_subdirectory(components/imu)
 
 # Examples and tests are built by default only when stefi-lib is the
 # top-level project, never when it is consumed by an application.
