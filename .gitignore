@@ -1,0 +1,8 @@
+.idea/
+.DS_Store
+cmake-build-*/
+docs/
+
+# Binaries / datasheets — keep schematics and images out of git
+*.pdf
+*.png
