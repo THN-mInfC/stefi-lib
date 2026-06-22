@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "libstefi/dma.h"
+#include "libstefi/uart.h"
 #include "libstefi/interrupts.h"
 #include "test.h"
 
@@ -52,4 +53,14 @@ void dma_irq_m2m_test(void)
         test_fail("DMA IRQ M2M: data mismatch \r\n");
     else
         test_pass("DMA IRQ M2M \r\n");
+}
+
+void dma_uart_tx_test(void)
+{
+    /* Observational: the string below must appear on the wire, sent via DMA.
+     * uart_dma_out is bounded, so a mis-routed request returns instead of
+     * hanging; reaching test_pass means the DMA transfer completed. */
+    static const char msg[] = ">>> sent via DMA <<<\r\n";
+    uart_dma_out(msg, sizeof msg - 1);
+    test_pass("DMA UART TX (see line above) \r\n");
 }

@@ -63,6 +63,55 @@ void dma_mem_to_mem(peripheral_dma_t dma, uint8_t channel,
     ch->CCR &= ~BIT(CCR_EN);             // release the channel
 }
 
+/*
+ * Request routing — the L4/G4 seam.
+ *
+ * A peripheral transfer only advances when the peripheral asserts its DMA
+ * request, so the channel must be told *which* request drives it:
+ *   L4 (L476): DMA_CSELR (offset 0xA8 in the DMA block) holds a 4-bit selector
+ *              per channel. USART2_TX = request 2 on DMA1 channel 7.
+ *   G4 (G431): a DMAMUX1 instead — DMAMUX1_CHANNEL(mux)->CCR = request_id.
+ * Only the L4 path is implemented (the board in hand). The G4 path drops in
+ * here, selected by an MCU compile-define once dual-MCU support is wired.
+ */
+#define DMA_CSELR(base) (*(volatile uint32_t *)((base) + 0xA8u))
+
+static void dma1_select_request(uint8_t channel, uint8_t request)
+{
+    uint32_t shift = (uint32_t)(channel - 1u) * 4u;   /* 4 bits per channel */
+    DMA_CSELR(DMA1_BASE) = (DMA_CSELR(DMA1_BASE) & ~(0xFu << shift))
+                         | ((uint32_t) request << shift);
+}
+
+void dma_mem_to_periph(uint8_t channel, uint8_t request,
+                       volatile void *periph_reg, const void *src, uint32_t len)
+{
+    peripheral_dma_enable(PERIPHERAL_DMA1);
+
+    DMA_Channel_t *ch = DMA_CHANNEL(DMA1, channel);
+    ch->CCR &= ~BIT(CCR_EN);                          // disable before reconfigure
+    dma1_select_request(channel, request);           // route BEFORE enabling
+
+    ch->CPAR  = (uint32_t) periph_reg;               // fixed peripheral reg (PINC off)
+    ch->CMAR  = (uint32_t) src;                      // memory buffer (MINC on)
+    ch->CNDTR = len;
+
+    // DIR=1: read from memory -> write peripheral. 8-bit, increment memory only.
+    ch->CCR = BIT(CCR_DIR) | BIT(CCR_MINC);
+
+    uint32_t shift = channel_flag_shift(channel);
+    DMA1->IFCR = 0xFu << shift;
+    ch->CCR |= BIT(CCR_EN);                           // GO
+
+    // Bounded wait for transfer-complete: a mis-routed request would otherwise
+    // hang forever (the peripheral never asserts its request, CNDTR never drains).
+    volatile uint32_t guard = 0;
+    while (!(DMA1->ISR & (1u << (shift + 1u))) && ++guard < 5000000u) { }
+
+    DMA1->IFCR = 0xFu << shift;
+    ch->CCR &= ~BIT(CCR_EN);
+}
+
 /****************************** Interrupts ******************************/
 /*
  * DMA owns its own per-channel handler table (like timer.c / gpio.c own

@@ -4,6 +4,7 @@
 #include "libstefi/uart.h"
 #include "libstefi/gpio.h"
 #include "libstefi/peripheral.h"
+#include "libstefi/dma.h"
 #include "internal/uart_internal.h"
 #include "internal/rcc_internal.h"
 #include "libstefi/util.h"
@@ -51,6 +52,24 @@ void uart_poll_out(const char *buf, uint32_t len)
         uart->TDR  = buf[i++];
         while (!(uart->ISR & BIT(6))); //Check Transmission Complete
     }
+}
+
+/*
+ * USART2_TX over DMA. On STM32L4 the TX request maps to DMA1 channel 7 with
+ * DMA_CSELR selector 2 (RM0351 DMA request table). (G4 routes the same request
+ * through DMAMUX instead — see dma_mem_to_periph's seam.) Blocking: returns once
+ * the last byte has shifted out, so it composes with poll-based printf.
+ */
+#define USART2_TX_DMA_CHANNEL  7u
+#define USART2_TX_DMA_REQUEST  2u   /* L4 CSELR C7S = USART2_TX */
+
+void uart_dma_out(const char *buf, uint32_t len)
+{
+    uart->CR3 |= BIT(7);            // DMAT: drive the TX from DMA
+    dma_mem_to_periph(USART2_TX_DMA_CHANNEL, USART2_TX_DMA_REQUEST,
+                      &uart->TDR, buf, len);
+    while (!(uart->ISR & BIT(6)));  // wait TC (last byte fully shifted out)
+    uart->CR3 &= ~BIT(7);          // release TX so poll-based printf still works
 }
 
 void uart_putchar(char ch) {

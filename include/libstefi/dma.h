@@ -26,6 +26,22 @@ void dma_mem_to_mem(peripheral_dma_t dma, uint8_t channel,
                     void *dst, const void *src, uint32_t len);
 
 /**
+ * @brief Blocking memory-to-peripheral transfer on a DMA1 channel.
+ *
+ * Routes the channel to @p request, then streams @p len bytes from @p src into
+ * the fixed @p periph_reg (memory increments, peripheral does not). Used to
+ * feed a peripheral's data register (e.g. USART2->TDR). DMA1 only.
+ *
+ * @param channel     1-based DMA1 channel the peripheral's request maps to
+ * @param request     request selector (L4: DMA_CSELR value for the channel)
+ * @param periph_reg  peripheral data register address (fixed, not incremented)
+ * @param src         memory buffer
+ * @param len         number of bytes
+ */
+void dma_mem_to_periph(uint8_t channel, uint8_t request,
+                       volatile void *periph_reg, const void *src, uint32_t len);
+
+/**
  * @brief Register the transfer-complete callback for a DMA1 channel.
  *
  * The callback runs in interrupt context when the channel finishes.
