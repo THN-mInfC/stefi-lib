@@ -1,3 +1,3 @@
-add_executable(test_main test_main.c test.c tests_gpio.c)
+add_executable(test_main test_main.c test.c tests_gpio.c tests_dma.c)
 
 target_link_libraries(test_main PRIVATE stefi::hal)

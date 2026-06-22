@@ -54,6 +54,11 @@ static const peripheral_dev_t peripheral_adc_dev[PERIPHERAL_ADC_COUNT] = {
     [PERIPHERAL_ADC3] = {&RCC->AHB2ENR, 13},
 };
 
+static const peripheral_dev_t peripheral_dma_dev[PERIPHERAL_DMA_COUNT] = {
+    [PERIPHERAL_DMA1] = {&RCC->AHB1ENR, 0},  // DMA1EN
+    [PERIPHERAL_DMA2] = {&RCC->AHB1ENR, 1},  // DMA2EN
+};
+
 void peripheral_gpio_enable(peripheral_gpio_t id)
 {
     uint8_t pos = peripheral_gpio_dev[id].enable_bit;
@@ -101,4 +106,13 @@ void peripheral_adc_enable(peripheral_adc_t id)
 {
     uint8_t pos = peripheral_adc_dev[id].enable_bit;
     *peripheral_adc_dev[id].rcc_reg |= BIT(pos);
+}
+
+void peripheral_dma_enable(peripheral_dma_t id)
+{
+    uint8_t pos = peripheral_dma_dev[id].enable_bit;
+    *peripheral_dma_dev[id].rcc_reg |= BIT(pos);
+    // DMAMUX1EN (AHB1ENR bit 2): request routing on G4. Reserved/no-op on L476
+    // (which routes via DMA_CSELR instead), so harmless to set on both.
+    RCC->AHB1ENR |= BIT(2);
 }

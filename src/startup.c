@@ -25,6 +25,14 @@ extern void TIM15_IRQHandler(void);
 extern void TIM16_IRQHandler(void);
 extern void TIM17_IRQHandler(void);
 
+extern void DMA1_Channel1_IRQHandler(void);
+extern void DMA1_Channel2_IRQHandler(void);
+extern void DMA1_Channel3_IRQHandler(void);
+extern void DMA1_Channel4_IRQHandler(void);
+extern void DMA1_Channel5_IRQHandler(void);
+extern void DMA1_Channel6_IRQHandler(void);
+extern void DMA1_Channel7_IRQHandler(void);
+
 extern void main();
 
 void Reset_Handler(void)
@@ -77,13 +85,13 @@ void (* const paIsrFunc[16+102])(void) =
 	EXTI2_IRQHandler,            /*   8 (0x00000060)  EXTI Line 2 interrupt */
 	EXTI3_IRQHandler,            /*   9 (0x00000064)  EXTI Line 3 interrupt */
 	EXTI4_IRQHandler,            /*  10 (0x00000068)  EXTI Line 4 interrupt */
-	0,            /*  11 (0x0000006C)  DMA1 channel 1 interrupt */
-	0,            /*  12 (0x00000070)  DMA1 channel 2 interrupt */
-	0,            /*  13 (0x00000074)  DMA1 channel 3 interrupt */
-	0,            /*  14 (0x00000078)  DMA1 channel 4 interrupt */
-	0,            /*  15 (0x0000007C)  DMA1 channel 5 interrupt */
-	0,            /*  16 (0x00000080)  DMA1 channel 6 interrupt */
-	0,            /*  17 (0x00000084)  DMA1 channel 7 interrupt */
+	DMA1_Channel1_IRQHandler,   /*  11 (0x0000006C)  DMA1 channel 1 interrupt */
+	DMA1_Channel2_IRQHandler,   /*  12 (0x00000070)  DMA1 channel 2 interrupt */
+	DMA1_Channel3_IRQHandler,   /*  13 (0x00000074)  DMA1 channel 3 interrupt */
+	DMA1_Channel4_IRQHandler,   /*  14 (0x00000078)  DMA1 channel 4 interrupt */
+	DMA1_Channel5_IRQHandler,   /*  15 (0x0000007C)  DMA1 channel 5 interrupt */
+	DMA1_Channel6_IRQHandler,   /*  16 (0x00000080)  DMA1 channel 6 interrupt */
+	DMA1_Channel7_IRQHandler,   /*  17 (0x00000084)  DMA1 channel 7 interrupt */
 	0,            /*  18 (0x00000088)  ADC1 + ADC2 global interrupt */
 	0,            /*  19 (0x0000008C)  USB high priority interrupts */
 	0,            /*  20 (0x00000090)  USB low priority interrupts */
