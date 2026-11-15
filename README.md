@@ -1,7 +1,7 @@
 # stefi-lib
 
-A bare-metal C firmware framework for STM32G4/L4 (Cortex-M4), used in the
-TH Nürnberg Embedded Lab.
+A bare-metal C firmware framework for STM32G4/L4 (Cortex-M4) and STM32F7
+(Cortex-M7), used in the TH Nürnberg Embedded Lab.
 
 Supported boards, prerequisites, and build/flash instructions:
 [doc/GETTING_STARTED.md](doc/GETTING_STARTED.md).

@@ -5,6 +5,11 @@
 #include <libstefi/peripheral.h>
 #include <libstefi/util.h>
 #include "internal/timer_internal.h"
+#if defined(STEFI_MCU_STM32L4G4)
+#include "internal/mcu_id.h"
+#else
+static inline bool mcu_is_g4(void) { return false; }
+#endif
 
 TIM_t *timers[] = {(TIM_t*) NULL, TIM1_BASE, TIM2_BASE, TIM3_BASE, TIM4_BASE, NULL, TIM6_BASE, TIM7_BASE, TIM8_BASE,
     NULL, NULL, NULL, NULL, NULL, NULL, TIM15_BASE, TIM16_BASE, TIM17_BASE, NULL, NULL, NULL};
@@ -220,6 +225,106 @@ void timer_set_ic_edge(const tim_id_t timer_id, timer_channel_t channel, timer_e
     }
 }
 
+void timer_set_oc_polarity(const tim_id_t timer_id, timer_channel_t channel, bool active_high) {
+    assert(timer_id > 0);
+    uint32_t bit = 1u << ((channel - 1u) * 4u + 1u);   // CCxP
+    if (active_high) timers[timer_id]->CCER &= ~bit; else timers[timer_id]->CCER |= bit;
+}
+
+void timer_set_master_mode(const tim_id_t timer_id, timer_trgo_t trgo, bool sync_slaves) {
+    assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+    tim->CR2 = (tim->CR2 & ~(0x7u << 4)) | ((uint32_t) trgo << 4);   // MMS
+    if (sync_slaves) tim->SMCR |= BIT(7); else tim->SMCR &= ~BIT(7); // MSM
+}
+
+void timer_set_slave_mode(const tim_id_t timer_id, timer_slave_mode_t mode, timer_trigger_t trigger) {
+    assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+    // SMS[2:0] at [2:0] (SMS[3] at [16] unused), TS[2:0] at [6:4]
+    tim->SMCR = (tim->SMCR & ~(0x7u | (0x7u << 4) | BIT(16) | (0x3u << 20)))
+              | ((uint32_t) trigger << 4) | (uint32_t) mode;
+}
+
+void timer_set_ic_source(const tim_id_t timer_id, timer_channel_t channel, bool indirect) {
+    assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+    volatile uint32_t *ccmr = (channel <= 2) ? &tim->CCMR1 : &tim->CCMR2;
+    uint32_t shift = (channel & 1u) ? 0u : 8u;
+    // CCxS: 01 = direct (TIx), 10 = indirect (neighbour TI) — only while CCxE = 0
+    tim->CCER &= ~(1u << ((channel - 1u) * 4u));
+    *ccmr = (*ccmr & ~(0x3u << shift)) | ((indirect ? 2u : 1u) << shift);
+}
+
+void timer_set_repetition(const tim_id_t timer_id, uint8_t n) {
+    assert(timer_id > 0);
+    timers[timer_id]->RCR = n;
+}
+
+volatile uint32_t *timer_ccr_address(const tim_id_t timer_id, timer_channel_t channel) {
+    assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+    switch (channel) {
+        case 1: return &tim->CCR1;
+        case 2: return &tim->CCR2;
+        case 3: return &tim->CCR3;
+        default: return &tim->CCR4;
+    }
+}
+
+void timer_set_oc_mode(const tim_id_t timer_id, timer_channel_t channel, timer_oc_mode_t mode) {
+    assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+    volatile uint32_t *ccmr = (channel <= 2) ? &tim->CCMR1 : &tim->CCMR2;
+    uint32_t shift = (channel & 1u) ? 0u : 8u;
+    uint32_t v = *ccmr & ~((0xFFu | BIT(16)) << shift);          // CCxS = output, OCxM, OCxPE
+    v |= ((uint32_t) mode << (shift + 4u));
+    if (mode >= TIMER_OC_PWM1) v |= BIT(3) << shift;             // preload for PWM
+    *ccmr = v;
+}
+
+void timer_enable_complementary(const tim_id_t timer_id, timer_channel_t channel, bool active_high) {
+    assert(timer_id > 0);
+    TIM_t *tim = timers[timer_id];
+    uint32_t sh = (channel - 1u) * 4u;
+    tim->CCER = (tim->CCER & ~(1u << (sh + 3u))) | (active_high ? 0u : (1u << (sh + 3u))) | (1u << (sh + 2u));
+    tim->BDTR |= BIT(15);                                        // MOE
+}
+
+void timer_cc_interrupt(const tim_id_t timer_id, timer_channel_t channel, bool enable) {
+    assert(timer_id > 0);
+    if (enable) timers[timer_id]->DIER |= BIT(channel); else timers[timer_id]->DIER &= ~BIT(channel);
+}
+
+volatile uint32_t *timer_dma_burst(const tim_id_t timer_id, uint8_t base, uint8_t count) {
+    assert(timer_id > 0);
+    // DCR/DMAR: L4 at 0x48/0x4C, G4 at 0x3DC/0x3E0
+    uint32_t b = (uint32_t) timers[timer_id];
+    bool g4 = mcu_is_g4();
+    volatile uint32_t *dcr = (volatile uint32_t *) (b + (g4 ? 0x3DCu : 0x48u));
+    *dcr = (uint32_t) (base & 0x1Fu) | ((uint32_t) ((count - 1u) & 0x1Fu) << 8);
+    return (volatile uint32_t *) (b + (g4 ? 0x3E0u : 0x4Cu));
+}
+
+void timer_generate_update(const tim_id_t timer_id) {
+    assert(timer_id > 0);
+    timers[timer_id]->EGR |= BIT(0);
+}
+
+nvic_source_t timer_get_interrupt_source(const tim_id_t timer_id) {
+    return timerid_to_irq[timer_id];
+}
+
+void timer_enable_dma_request(const tim_id_t timer_id, timer_dma_request_t request) {
+    assert(timer_id > 0);
+    timers[timer_id]->DIER |= BIT(request);
+}
+
+void timer_disable_dma_request(const tim_id_t timer_id, timer_dma_request_t request) {
+    assert(timer_id > 0);
+    timers[timer_id]->DIER &= ~BIT(request);
+}
+
 /*******Interrupts*****************/
 void timer_update_interrupt_register_handler(const tim_id_t timer_id, callbackfn_t fn) {
     timer_handlers[timer_id].callback[TIMER_UPDATE_IRQ] = fn;
@@ -259,6 +364,15 @@ static inline void handle_timer_irq(const tim_id_t timer_id) {
     assert(timer_id > 0);
     TIM_t *tim = timers[timer_id];
     uint32_t interrupt_flag = tim->SR;
+    // An enabled flag nobody listens to must still be cleared, or the
+    // interrupt re-enters forever (e.g. CC1IE set by timer_cc_enable() on
+    // the second channel of a PWM-input pair).
+    uint32_t orphan = 0;
+    for (uint32_t i = 0; i < TIMER_IRQ_MAX; i++) {
+        if (!timer_handlers[timer_id].callback[i]) orphan |= BIT(i);
+    }
+    orphan &= interrupt_flag & tim->DIER & 0x1Fu;
+    if (orphan) tim->SR = ~orphan;
     if ((interrupt_flag & BIT(0)) && timer_handlers[timer_id].callback[TIMER_UPDATE_IRQ]) {
         tim->SR &= ~BIT(0);
         timer_dispatch(timer_id, 0);
@@ -324,6 +438,12 @@ void timer_cc_enable(const tim_id_t timer_id, timer_channel_t channel, bool is_i
     tim->EGR |= BIT(0); //reset timer: preloads the shadow registers
     timer_clear_interruptflag(timer_id);
     interrupts_enable_source(timerid_to_irq[timer_id]);
+#if defined(STEFI_MCU_STM32L4G4)
+    // TIM1/TIM8 capture/compare interrupts have their own NVIC line
+    // (TIM1_CC = 27, TIM8_CC = 46 on L4 and G4)
+    if (is_input && timer_id == TIMER1) interrupts_enable_source((nvic_source_t) 27);
+    if (is_input && timer_id == TIMER8) interrupts_enable_source((nvic_source_t) 46);
+#endif
 }
 void TIM2_IRQHandler(void) {handle_timer_irq(TIMER2);}
 void TIM3_IRQHandler(void) {handle_timer_irq(TIMER3);}
@@ -337,3 +457,14 @@ void TIM16_IRQHandler(void) {
     handle_timer_irq(TIMER16);
 }
 void TIM17_IRQHandler(void) {handle_timer_irq(TIMER17);}
+#if defined(STEFI_MCU_STM32L4G4)
+void TIM1_CC_IRQHandler(void) {handle_timer_irq(TIMER1);}
+void TIM8_CC_IRQHandler(void) {handle_timer_irq(TIMER8);}
+#endif
+#if defined(STEFI_MCU_STM32F7)
+/* F7 vector 25 (TIM1_UP_TIM10): TIM1's update interrupt; TIMER16 aliases TIM10. */
+void TIM1_UP_TIM10_IRQHandler(void) {
+    handle_timer_irq(TIMER1);
+    handle_timer_irq(TIMER16);
+}
+#endif

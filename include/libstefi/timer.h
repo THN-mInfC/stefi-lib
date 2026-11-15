@@ -89,10 +89,96 @@ void timer_set_mode_opm(const tim_id_t timer_id);
  */
 void timer_wait_for_update_flag(const tim_id_t timer);
 
+/*-----------------------------------*/
+/* Output polarity, synchronisation  */
+/*-----------------------------------*/
+/* timer_cc_enable() makes outputs active-low (the STefi LEDs sink); ST's
+ * examples and most loads want active-high: call this after it. */
+void timer_set_oc_polarity(const tim_id_t timer_id, timer_channel_t channel, bool active_high);
+
+typedef enum {
+    TIMER_TRGO_RESET = 0, TIMER_TRGO_ENABLE = 1, TIMER_TRGO_UPDATE = 2, TIMER_TRGO_OC1 = 3,
+    TIMER_TRGO_OC1REF = 4, TIMER_TRGO_OC2REF = 5, TIMER_TRGO_OC3REF = 6, TIMER_TRGO_OC4REF = 7,
+} timer_trgo_t;
+
+typedef enum {
+    TIMER_SLAVE_DISABLED = 0, TIMER_SLAVE_RESET = 4, TIMER_SLAVE_GATED = 5,
+    TIMER_SLAVE_TRIGGER = 6, TIMER_SLAVE_EXTERNAL_CLOCK = 7,
+} timer_slave_mode_t;
+
+/* Trigger inputs (SMCR.TS). Which timer an ITRx is, is fixed per slave by
+ * the MCU (RM0440 table 'TIMx internal trigger connection'; e.g. on the G4
+ * TIM3: ITR1 = TIM2, TIM4: ITR2 = TIM3). */
+typedef enum {
+    TIMER_TS_ITR0 = 0, TIMER_TS_ITR1 = 1, TIMER_TS_ITR2 = 2, TIMER_TS_ITR3 = 3,
+    TIMER_TS_TI1F_ED = 4, TIMER_TS_TI1FP1 = 5, TIMER_TS_TI2FP2 = 6, TIMER_TS_ETRF = 7,
+} timer_trigger_t;
+
+/** Master: what drives TRGO; with sync, MSM delays this timer's own
+ *  trigger so it starts in step with its slaves. */
+void timer_set_master_mode(const tim_id_t timer_id, timer_trgo_t trgo, bool sync_slaves);
+void timer_set_slave_mode(const tim_id_t timer_id, timer_slave_mode_t mode, timer_trigger_t trigger);
+
+/** Input capture source: direct = TIx -> ICx, indirect = the neighbour
+ *  (TI2 -> IC1, TI1 -> IC2...) — two channels on one pin = PWM input. */
+void timer_set_ic_source(const tim_id_t timer_id, timer_channel_t channel, bool indirect);
+
+/** Advanced timers (TIM1/8/15-17): update event every n+1 periods. */
+void timer_set_repetition(const tim_id_t timer_id, uint8_t n);
+
+/** Address of CCRx — target for DMA (e.g. waveform from memory). */
+volatile uint32_t *timer_ccr_address(const tim_id_t timer_id, timer_channel_t channel);
+
+/* Output-compare modes (OCxM): what the pin does when CNT == CCRx. */
+typedef enum {
+    TIMER_OC_FROZEN = 0, TIMER_OC_ACTIVE = 1, TIMER_OC_INACTIVE = 2, TIMER_OC_TOGGLE = 3,
+    TIMER_OC_FORCE_INACTIVE = 4, TIMER_OC_FORCE_ACTIVE = 5, TIMER_OC_PWM1 = 6, TIMER_OC_PWM2 = 7,
+} timer_oc_mode_t;
+/** Set the OC mode (channel configured as output, preload off for the
+ *  non-PWM modes so CCRx changes take effect at once). */
+void timer_set_oc_mode(const tim_id_t timer_id, timer_channel_t channel, timer_oc_mode_t mode);
+/** Advanced timers: enable the complementary output CHxN (and MOE). */
+void timer_enable_complementary(const tim_id_t timer_id, timer_channel_t channel, bool active_high);
+/** CC interrupt for one channel on / off (DIER.CCxIE). */
+void timer_cc_interrupt(const tim_id_t timer_id, timer_channel_t channel, bool enable);
+
+/**
+ * @brief DMA burst: on each DMA request, `count` consecutive registers from
+ * register index `base` (offset / 4, e.g. ARR = 11) are written through
+ * DMAR. Returns the DMAR address to give the DMA as peripheral address.
+ */
+volatile uint32_t *timer_dma_burst(const tim_id_t timer_id, uint8_t base, uint8_t count);
+#define TIMER_REG_ARR 11u
+#define TIMER_REG_RCR 12u
+#define TIMER_REG_CCR1 13u
+
+/** UG: reload prescaler/ARR now, reset the counter. */
+void timer_generate_update(const tim_id_t timer_id);
+
+/*-----------------------------------*/
+/* DMA requests                      */
+/*-----------------------------------*/
+typedef enum {
+    TIMER_DMA_UPDATE = 8,   /* UDE: one DMA request per update event */
+    TIMER_DMA_CC1 = 9,
+    TIMER_DMA_CC2 = 10,
+    TIMER_DMA_CC3 = 11,
+    TIMER_DMA_CC4 = 12,
+} timer_dma_request_t;
+
+/**
+ * @brief Let the timer raise a DMA request on the given event (TIMx_DIER).
+ * Which DMA channel/stream serves it is fixed by the MCU's request table.
+ */
+void timer_enable_dma_request(const tim_id_t timer_id, timer_dma_request_t request);
+void timer_disable_dma_request(const tim_id_t timer_id, timer_dma_request_t request);
+
 /*--------------------*/
 /* Interrupts */
 /*--------------------*/
 void timer_enable_interrupt(const tim_id_t);
+/** NVIC line of a timer's update interrupt (e.g. for interrupts_set_priority). */
+nvic_source_t timer_get_interrupt_source(const tim_id_t);
 void timer_disable_interrupt(const tim_id_t);
 void timer_update_interrupt_register_handler(const tim_id_t timer_id, callbackfn_t fn);
 void timer_cc_interrupt_register_handler(const tim_id_t timer_id, timer_interrupt_t channel, callbackfn_t fn);

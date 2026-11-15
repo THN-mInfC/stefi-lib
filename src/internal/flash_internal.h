@@ -15,6 +15,15 @@ typedef struct {
     volatile uint32_t ECCR;      // 0x18 ECC
     volatile uint32_t _rsvd1C;   // 0x1C
     volatile uint32_t OPTR;      // 0x20 option
+    volatile uint32_t PCROP1SR;  // 0x24
+    volatile uint32_t PCROP1ER;  // 0x28
+    volatile uint32_t WRP1AR;    // 0x2C write protection area A: STRT [6:0], END [22:16]
+    volatile uint32_t WRP1BR;    // 0x30 write protection area B
+    volatile uint32_t _rsvd34[4];// 0x34..0x40
+    volatile uint32_t PCROP2SR;  // 0x44 (L4 bank 2)
+    volatile uint32_t PCROP2ER;  // 0x48
+    volatile uint32_t WRP2AR;    // 0x4C (L4 bank 2, area A)
+    volatile uint32_t WRP2BR;    // 0x50 (L4 bank 2, area B)
 } flash_t;
 
 #define FLASH_REG ((flash_t*) 0x40022000)
@@ -22,14 +31,24 @@ typedef struct {
 /* Unlock keys (RM0440 §3.3.5). */
 #define FLASH_KEY1 0x45670123u
 #define FLASH_KEY2 0xCDEF89ABu
+#define FLASH_OPTKEY1 0x08192A3Bu
+#define FLASH_OPTKEY2 0x4C5D6E7Fu
 
 /* CR bits. */
 #define FLASH_CR_PG       BIT(0)
 #define FLASH_CR_PER      BIT(1)
 #define FLASH_CR_PNB_POS  3u
-#define FLASH_CR_PNB_MSK  (0x7Fu << FLASH_CR_PNB_POS)   /* 7 bits: pages 0..63 */
+#define FLASH_CR_PNB_MSK  (0xFFu << FLASH_CR_PNB_POS)   /* G4: 7 bits used, L4: 8 bits */
+#define FLASH_CR_BKER     BIT(11)                        /* L4: page is in bank 2 */
+#define FLASH_CR_MER2     BIT(15)                        /* L4: mass erase bank 2 */
+#define FLASH_OPTR_BFB2   (1u << 20)                     /* L4: boot from bank 2 */
+#define FLASH_CR_MER1     BIT(2)
 #define FLASH_CR_STRT     BIT(16)
-#define FLASH_CR_LOCK     BIT(31)
+#define FLASH_CR_OPTSTRT  BIT(17)
+#define FLASH_CR_FSTPG    BIT(18)
+#define FLASH_CR_OBL_LAUNCH BIT(27)
+#define FLASH_CR_OPTLOCK  BIT(30)
+#define FLASH_CR_LOCK     (1u << 31)
 
 /* SR bits. */
 #define FLASH_SR_EOP      BIT(0)

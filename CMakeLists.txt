@@ -12,26 +12,79 @@ endif()
 project(stefi VERSION 0.1.0 LANGUAGES C ASM)
 set(CMAKE_C_STANDARD 11)
 
-add_library(libstefi
+# Board selection: each board is a subdirectory of boards/ providing
+# board.{h,c} and, optionally, board.cmake (sets STEFI_MCU_FAMILY when the
+# board is not an STM32L4/G4).
+set(STEFI_BOARD "nucleo_l476" CACHE STRING "Target board (subdirectory of boards/)")
+set_property(CACHE STEFI_BOARD PROPERTY STRINGS nucleo_l476 nucleo_l476rg rohmi_g431 nucleo_g431kb nucleo_f767zi)
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/boards/${STEFI_BOARD}/board.c)
+    message(FATAL_ERROR "Unknown STEFI_BOARD '${STEFI_BOARD}' — no boards/${STEFI_BOARD}/board.c")
+endif()
+message(STATUS "stefi-lib board: ${STEFI_BOARD}")
+
+# MCU family: STM32L4G4 (L476/G431 share one register layout, the original
+# target) or STM32F7 (F767, Cortex-M7: different bus map, stream DMA, USB OTG).
+set(STEFI_MCU_FAMILY STM32L4G4)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/boards/${STEFI_BOARD}/board.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/boards/${STEFI_BOARD}/board.cmake)
+endif()
+message(STATUS "stefi-lib MCU family: ${STEFI_MCU_FAMILY}")
+
+# Family-independent HAL sources (register maps selected in src/internal/
+# by the STEFI_MCU_* define).
+set(STEFI_HAL_COMMON_SOURCES
         src/gpio.c
-        src/peripheral.c
         src/util.c
-        src/uart.c
-        src/startup.c
         src/syscalls.c
-        src/system.c
         src/systick.c
         src/interrupts.c
         src/timer.c
-        src/i2c.c
-        src/rng.c
         src/ringbuffer.c
-        src/spi.c
-        src/adc.c
-        src/wwdg.c
-        src/flash.c
-        src/dma.c
 )
+
+if(STEFI_MCU_FAMILY STREQUAL "STM32F7")
+    add_library(libstefi
+            ${STEFI_HAL_COMMON_SOURCES}
+            src/stm32f7/startup.c
+            src/stm32f7/peripheral.c
+            src/stm32f7/system.c
+            src/stm32f7/uart.c
+            src/stm32f7/dma.c
+            src/usb_cdc_dwc2.c
+    )
+elseif(STEFI_MCU_FAMILY STREQUAL "STM32L4G4")
+    add_library(libstefi
+            ${STEFI_HAL_COMMON_SOURCES}
+            src/peripheral.c
+            src/uart.c
+            src/startup.c
+            src/system.c
+            src/i2c.c
+            src/rng.c
+            src/spi.c
+            src/adc.c
+            src/wwdg.c
+            src/flash.c
+            src/dma.c
+            src/usb_cdc_dwc2.c     # L4 OTG_FS (not on G4)
+            src/usart.c
+            src/pwr.c
+            src/rtc.c
+            src/iwdg.c
+            src/cordic.c           # G4 only
+            src/fmac.c             # G4 only
+            src/crc.c
+            src/comp.c             # L4
+            src/dac.c              # L4
+            src/opamp.c            # L4
+            src/lptim.c            # L4
+            src/i2c_xfer.c
+            src/cortex.c
+            src/firewall.c         # L4
+    )
+else()
+    message(FATAL_ERROR "Unknown STEFI_MCU_FAMILY '${STEFI_MCU_FAMILY}' (STM32L4G4 or STM32F7)")
+endif()
 
 add_library(stefi::hal ALIAS libstefi)
 
@@ -47,15 +100,6 @@ target_include_directories(libstefi
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/internal
 )
-
-# Board selection: each board is a subdirectory of boards/ providing
-# board.{h,c}.
-set(STEFI_BOARD "nucleo_l476" CACHE STRING "Target board (subdirectory of boards/)")
-set_property(CACHE STEFI_BOARD PROPERTY STRINGS nucleo_l476 rohmi_g431)
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/boards/${STEFI_BOARD}/board.c)
-    message(FATAL_ERROR "Unknown STEFI_BOARD '${STEFI_BOARD}' — no boards/${STEFI_BOARD}/board.c")
-endif()
-message(STATUS "stefi-lib board: ${STEFI_BOARD}")
 
 # Layer 2 (board) and layer 3 (components). Dependency direction is
 # app -> components -> board -> libstefi; the HAL links nothing above it.
@@ -92,5 +136,7 @@ if(STEFI_BUILD_EXAMPLES)
         add_subdirectories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
     elseif(STEFI_BOARD STREQUAL "rohmi_g431")
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples/8-Rohmi-BoardTest)
+    # nucleo_l476rg / nucleo_g431kb / nucleo_f767zi (bare Nucleos): board
+    # layers only, no examples in this repository.
     endif()
 endif ()

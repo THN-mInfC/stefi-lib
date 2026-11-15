@@ -23,6 +23,7 @@
 #include "libstefi/timer.h"
 #include "libstefi/peripheral.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /* Device IDs are indices into the config tables below. The concrete board's
