@@ -40,12 +40,6 @@ void main(void) {
     }
 }
 ```
-## Applications
-
-- [USB oscilloscope](doc/usb-oscilloscope.md) — the
-  [usb-oscilloscope](https://github.com/kross11480/usb-oscilloscope) firmware
-  rebuilt on stefi-lib (NUCLEO-F767ZI): `examples/10-UsbOscilloscope`.
-
 ## Using stefi-lib in your own project
 
 The easiest way to start is the

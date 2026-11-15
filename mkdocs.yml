@@ -11,7 +11,6 @@ nav:
   - Home: index.md
   - Getting started: GETTING_STARTED.md
   - Examples: examples.md
-  - USB oscilloscope: usb-oscilloscope.md
 
 theme:
   name: material
